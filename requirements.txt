@@ -1,0 +1,27 @@
+pathlib
+
+#aiohttp
+#aiodns # For speeding up DNS resolving by client API you may install aiodns as well.
+aiohttp[speedups]
+
+uvicorn
+starlette
+fastapi
+SQLAlchemy
+sqlalchemy[asyncio]
+databases
+databases[aiosqlite]
+alembic
+langchain
+openai
+
+# Wechat requirements
+pycryptodome
+
+# Web
+jinja2
+captcha
+
+# dev
+autopep8
+aiounittest

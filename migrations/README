@@ -1,0 +1,4 @@
+Generic single-database configuration with an async dbapi.
+
+alembic revision -m 'message' --autogenerate
+alembic upgrade head

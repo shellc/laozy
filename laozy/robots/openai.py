@@ -12,6 +12,7 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
+    AIMessagePromptTemplate,
     MessagesPlaceholder
 )
 
@@ -43,13 +44,17 @@ class OpenAIRobot(Robot):
                     prompts.append(
                         SystemMessagePromptTemplate.from_template(t['template']))
                 elif 'history' == role:
-                    variable_name = t['name'] if t['name'] else 'history'
+                    if 'template' in t and len(t['template']) > 0:
+                        prompts.append(SystemMessagePromptTemplate.from_template(t['template']))
+
+                    variable_name = t['name'] if 'name' in t else 'history'
                     prompts.append(MessagesPlaceholder(
                         variable_name=variable_name))
                 else:
                     log.warn("Unknow role in prompt template: %s" % t['role'])
 
         prompts.append(HumanMessagePromptTemplate.from_template("{prompt}"))
+        prompts.append(AIMessagePromptTemplate.from_template(""))
         # history_placeholder = MessagesPlaceholder(variable_name="history")
         self.prompt = ChatPromptTemplate.from_messages(prompts)
 
@@ -59,7 +64,7 @@ class OpenAIRobot(Robot):
         memory = ConversationBufferMemory(
             return_messages=True, input_key='prompt')
         if msg is not None:
-            histories = await messages.get_history(msg.connector, msg.connector_id, msg.connector_userid, msg.channel_id, 11)
+            histories = await messages.get_history(msg.connector, msg.connector_id, msg.connector_userid, msg.channel_id, 3)
             for h in reversed(histories):
                 if not h.content:
                     continue
@@ -67,13 +72,13 @@ class OpenAIRobot(Robot):
                     memory.chat_memory.add_user_message(h.content)
                 else:
                     memory.chat_memory.add_ai_message(h.content)
-
+        
         chain = LLMChain(
-            llm=llm, memory=memory, prompt=self.prompt, verbose=False)
+            llm=llm, memory=memory, prompt=self.prompt, verbose=True)
 
         vvalues = self.varialbe_values.copy()
         vvalues['prompt'] = msg.content
-
+        
         callbacks = []
         if msg.streaming:
             handler = AsyncIteratorCallbackHandler()

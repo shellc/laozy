@@ -38,3 +38,19 @@ class Model:
     async def get(self, id):
         q = self.table.select().where(self.c['id'] == id).limit(1)
         return await self.db.fetch_one(q)
+    
+    async def update(self, id, **values):
+        q = self.table.update().where(self.c.id == id).values(**values)
+        return await self.db.execute(q)
+    
+    async def delete(self, id):
+        q = self.table.delete().where(self.c.id == id)
+        return await self.db.execute(q)
+    
+    async def all(self):
+        q = self.table.select()
+        return await self.db.fetch_all(q)
+    
+    async def list_by_owner(self, owner):
+        q = self.table.select().where(self.c.owner == owner).order_by(self.c.created_time.desc())
+        return await self.db.fetch_all(q)

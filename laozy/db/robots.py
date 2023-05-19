@@ -1,11 +1,19 @@
+import databases
 import sqlalchemy
 
+from .db import Model
 from .db import metadata
 from .db import instance as db
+from ..utils import uuid
 
-robots = sqlalchemy.Table(
+class RobotModel(Model):
+    def __init__(self, name, metadata: sqlalchemy.MetaData, db: databases.Database, *args) -> None:
+        super().__init__(name, metadata, db, *args)
+
+robots = RobotModel(
     'robots',
     metadata,
+    db,
     sqlalchemy.Column('id', sqlalchemy.String(50), primary_key=True),
     sqlalchemy.Column('implement', sqlalchemy.String(50)),
     sqlalchemy.Column('name', sqlalchemy.String(50)),
@@ -14,11 +22,3 @@ robots = sqlalchemy.Table(
     sqlalchemy.Column('owner', sqlalchemy.String(50), index=True),
     sqlalchemy.Column('created_time', sqlalchemy.Integer, index=True),
 )
-
-async def all():
-    q = robots.select()
-    return await db.fetch_all(q)
-
-async def get(id: str):
-    q = robots.select(robots.c.id == id)
-    return await db.fetch_one(q)

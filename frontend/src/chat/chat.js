@@ -11,7 +11,6 @@ import {
     Col,
     Avatar,
     Alert,
-    Typography,
 } from 'antd';
 
 import { fetchEventSource } from '@microsoft/fetch-event-source'

@@ -28,10 +28,14 @@ class ChannelRoutesModel(Model):
         q = self.table.select().where(self.c.connector==connector, self.c.connector_id == connector_id)
         return await db.fetch_one(q)
     
-    async def list_routes(self, owner: str):
-        q = self.table.select().where(self.c.owner == owner)
-        return await db.fetch_all(q)
-
+    async def update_route(self, connector:str, connector_id:str, **values):
+        q = self.table.update().where(self.c.connector==connector, self.c.connector_id == connector_id).values(**values)
+        return await db.execute(q)
+    
+    async def delete_route(self, connector:str, connector_id:str):
+        q = self.table.delete().where(self.c.connector==connector, self.c.connector_id == connector_id)
+        return await db.execute(q)
+    
 channel_routes = ChannelRoutesModel(
     'channel_routes',
     metadata,

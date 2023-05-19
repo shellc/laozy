@@ -3,8 +3,8 @@ from .db import database_url
 from .db import instance
 from . import messages
 from . import states
-from . import robots
-from . import prompt_templates
+from .robots import robots
+from .prompt_templates import prompt_templates
 from .users import users
 from .channels import channels
 from .channels import channel_routes

@@ -34,7 +34,6 @@ async def lifespan(app):
     await db.instance.disconnect()
 
 # Routes
-from .api import routes as _routes
 routes = [
     Route('/', endpoint=template.render('index.html')),
     Mount('/static', StaticFiles(directory='static'), name='static'),

@@ -53,11 +53,11 @@ export const Developer = () => {
     return (
         <div>
             <div className='p-2 border-bottom' style={{ height: headerHeight }}>
-                <div className='col-lg-2 mx-auto'>
+                <div className='col-lg-3 mx-auto'>
                     {options.length > 0 ? (
                         <Select
                             showSearch
-                            placeholder='选择消息接口'
+                            placeholder='Select a Connector'
                             defaultValue={connector_id}
                             onChange={updateConnectorId}
                             options={options}

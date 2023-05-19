@@ -85,7 +85,7 @@ const LoginForm = (props) => {
                 if (r.status == 200) {
                     return r.json();
                 } else {
-                    setError("登录失败，请检查用户名、密码和验证码是否正确。")
+                    setError("Login failed, please check if the username, password, and verification code are correct.")
                 }
             }).then(data => {
                 Cookies.set('userid', data.userid);
@@ -97,7 +97,7 @@ const LoginForm = (props) => {
             })
                 .catch(e => {
                     console.log(e);
-                    setError("发生未知错误！");
+                    setError("An unknown error has occurred!");
                 });
         });
     }
@@ -115,17 +115,17 @@ const LoginForm = (props) => {
             ) : null}
             <div>
                 <div className="mb-4">
-                    <input type="text" className="form-control" id="username" name="username" placeholder="用户名" required></input>
+                    <input type="text" className="form-control" id="username" name="username" placeholder="Username" required></input>
                 </div>
                 <div className="mb-4">
-                    <input type="password" className="form-control" name="password" placeholder="密码" required></input>
+                    <input type="password" className="form-control" name="password" placeholder="Password" required></input>
                 </div>
                 <div className="input-group mb-4">
-                    <input type="captcha" className="form-control" name="captcha" placeholder="验证码" required></input>
+                    <input type="captcha" className="form-control" name="captcha" placeholder="CAPTCHA" required></input>
                     <span className='input-group-text p-0'><img src={captchaData} style={{ height: '30px' }} onClick={reloadCaptcha} /></span>
                 </div>
                 <input type='hidden' name='captcha_signature' value={captchaSignature} />
-                <button type="submit" className="btn btn-primary w-100">登录</button>
+                <button type="submit" className="btn btn-primary w-100">Sign in</button>
             </div>
         </form>
     )
@@ -150,7 +150,7 @@ const RegisterForm = (props) => {
 
         let password = e.target.password.value;
         if (password != e.target.password_confirm.value) {
-            setError("两次输入的密码必须相同。");
+            setError("The passwords entered twice must be the same.");
 
         }
 
@@ -174,14 +174,14 @@ const RegisterForm = (props) => {
                 if (r.status == 201) {
                     window.location.href = props.next ? props.next : '/accounts/login';
                 } else if (r.status == '409') {
-                    setError("用户已存在。");
+                    setError("The user already exists.");
                 } else {
-                    setError("发生错误，请检查您的输入！");
+                    setError("An error has occurred, please check your input!");
                 }
             })
                 .catch(e => {
                     console.log(e);
-                    setError("发生未知错误！");
+                    setError("An unknown error has occurred!");
                 });
         });
     }
@@ -200,23 +200,23 @@ const RegisterForm = (props) => {
 
             <div>
                 <div className="mb-4">
-                    <input type="text" className="form-control" id="username" name="username" placeholder="用户名" required></input>
+                    <input type="text" className="form-control" id="username" name="username" placeholder="Username" required></input>
                 </div>
                 <div className="mb-4">
-                    <input type="password" className="form-control" name="password" placeholder="密码" required></input>
+                    <input type="password" className="form-control" name="password" placeholder="Password" required></input>
                 </div>
                 <div className="mb-4">
-                    <input type="password" className="form-control" name="password_confirm" placeholder="确认密码" required></input>
+                    <input type="password" className="form-control" name="password_confirm" placeholder="Confirm your password" required></input>
                 </div>
                 <div className="input-group mb-4">
-                    <input type="captcha" className="form-control" name="captcha" placeholder="验证码" required></input>
+                    <input type="captcha" className="form-control" name="captcha" placeholder="CAPTACHA" required></input>
                     <span className='input-group-text p-0'><img src={captchaData} style={{ height: '30px' }} onClick={reloadCaptcha} /></span>
                 </div>
                 <div className="mb-4">
-                    <input type="text" className="form-control" name="invitation_code" placeholder="邀请码" required></input>
+                    <input type="text" className="form-control" name="invitation_code" placeholder="Invitaion Code" required></input>
                 </div>
                 <input type='hidden' name='captcha_signature' value={captchaSignature} />
-                <button type="submit" className="btn btn-primary w-100">注册</button>
+                <button type="submit" className="btn btn-primary w-100">Sign up</button>
             </div>
         </form>
     )
@@ -228,18 +228,18 @@ const AccountComponent = (props) => {
     return (<div>
         {register ? (
             <div>
-                <h1 className='mb-4 text-center fs-5 fw-normal'><i className="fa-solid fa-user-plus"></i> 注册新用户</h1>
+                <h1 className='mb-4 text-center fs-5 fw-normal'><i className="fa-solid fa-user-plus"></i> Sign up</h1>
                 <RegisterForm next={props.next} />
                 <div className='mt-3'>
-                    已经有账号了，<a href="#" onClick={() => setRegister(false)}>点这里登录</a>。
+                Already have an account, <a href="#" onClick={() => setRegister(false)}>Sign in</a>.
                 </div>
             </div>
         ) : (
             <div>
-                <h1 className='mb-4 text-center fs-5 fw-normal'><i className="fa-solid fa-user"></i> 登录</h1>
+                <h1 className='mb-4 text-center fs-5 fw-normal'><i className="fa-solid fa-user"></i> Sign in</h1>
                 <LoginForm next={props.next} />
                 <div className='mt-3'>
-                    还没有账号，<a href="#" onClick={() => setRegister(true)}>点这里注册</a>。
+                    Don't have an account yet, <a href="#" onClick={() => setRegister(true)}>Sign up</a>.
                 </div>
             </div>
         )}

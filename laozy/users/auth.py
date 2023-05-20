@@ -27,7 +27,7 @@ secrect_key = settings.get('SECRECT_KEY')
 
 
 @api.entry.get("/captcha")
-async def genereate_captcha():
+async def genereate_captcha(signature: str = None):
     chars = []
     for i in range(4):
         chars.append(chr(random.randint(65, 90)))
@@ -35,11 +35,15 @@ async def genereate_captcha():
     img = ImageCaptcha(width=180, height=60, font_sizes=[48])
     data = img.generate(chars=chars)
 
+    to_sign = ''.join(chars)
+    if signature:
+        to_sign = to_sign + signature
+    #print(to_sign)
     headers = {
         'Content-Type': 'image/png',
-        'X-Captcha-Signature': utils.captcha_sign(secrect_key, ''.join(chars))
+        'X-Captcha-Signature': utils.captcha_sign(secrect_key, to_sign)
     }
-    print(''.join(chars), headers)
+
     return StreamingResponse(content=data, headers=headers)
 
 
@@ -57,17 +61,21 @@ async def create_user(register: RegisterModel):
     bad_request = HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
     # Validate CAPTCHA
-    captcha_sign = utils.captcha_sign(secrect_key, register.captcha)
+    data_sign = utils.sha256(register.username + register.password)
+    captcha_sign = utils.captcha_sign(secrect_key, register.captcha + data_sign)
     if captcha_sign != register.captcha_signature:
-        print(register.captcha, captcha_sign, register.captcha_signature)
+        # print(register.captcha, captcha_sign, register.captcha_signature)
         raise bad_request
 
     # Validate invitation code
-    if not register.invitation_code:
-        raise bad_request
-    invit = await invitations.get(register.invitation_code)
-    if not invit or invit.invalid:
-        raise bad_request
+    invitation_required = bool(settings.get('INVITATION_REQUIRED', False))
+    invit = None
+    if invitation_required:
+        if not register.invitation_code:
+            raise bad_request
+        invit = await invitations.get(register.invitation_code)
+        if not invit or invit.invalid:
+            raise bad_request
 
     # Check inputs
     username = register.username
@@ -84,7 +92,8 @@ async def create_user(register: RegisterModel):
     await users.create(id=uuid(), username=username, salt=salt, password=password, created_time=int(time.time()))
 
     # Invalid invitation code
-    await invitations.invalid(invit.id)
+    if invitation_required:
+        await invitations.invalid(invit.id)
 
 
 class UserModel(BaseModel):
@@ -108,6 +117,7 @@ class Credential(BaseModel):
     captcha_signature: Union[str, None] = None
     token: Union[str, None] = None
 
+
 @api.entry.post('/users/tokens')
 # @requires('authenticated')
 async def create_token(credential: Union[Credential, None] = None):
@@ -125,13 +135,15 @@ async def create_token(credential: Union[Credential, None] = None):
         else:
             username = credential.username
             # Validate username and password
-            captcha_sign = utils.captcha_sign(secrect_key, credential.captcha)
+            data_sign = utils.sha256(username + credential.password)
+            #print(data_sign)
+            captcha_sign = utils.captcha_sign(secrect_key, credential.captcha + data_sign)
             if captcha_sign != credential.captcha_signature:
                 raise err
-        
+
         if not username:
             raise err
-        
+
         user = await users.getbyusername(username)
         if user:
             password = utils.password(user.salt, credential.password)
@@ -150,8 +162,9 @@ async def create_token(credential: Union[Credential, None] = None):
 
     raise err
 
+
 class AuthenticatedUser(SimpleUser):
-    def __init__(self, id:str, username: str = None) -> None:
+    def __init__(self, id: str, username: str = None) -> None:
         super().__init__(username)
         self.id = id
 
@@ -159,12 +172,13 @@ class AuthenticatedUser(SimpleUser):
     def userid(self):
         return self.id
 
+
 class BasicAuthBackend(AuthenticationBackend):
     async def authenticate(self, request):
         token = None
         if "Authorization" in request.headers:
             auth = request.headers["Authorization"]
-           
+
             scheme, credentials = auth.split()
             if scheme.lower() == 'Bearer':
                 token = credentials

@@ -32,10 +32,12 @@ export const RobotListAndEditView = () => {
 
 const RobotEditor = (props) => {
     const [instance, setInstance] = useState(props.instance);
-    const [variables, setVariables] = useState(instance.variables ? JSON.parse(instance.variables):[]);
+    const variables = props.instance.variables ? JSON.parse(props.instance.variables):[];
+    //const [variables, setVariables] = useState(instance.variables ? JSON.parse(instance.variables):[]);
     const [msg, messagePlaceholder] = message.useMessage();
     const [templteSelectOptions, setTemplateSelectOptions] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState({});
+    const [kenowledgeBaseOptions, setKnowledgeBaseOptions] = useState([]);
 
     const openMessage = (t, m) => {
         msg.open({
@@ -54,6 +56,17 @@ const RobotEditor = (props) => {
                 });
             }
             setTemplateSelectOptions(options);
+        });
+
+        fetch("/api/knowledges").then(r => r.json()).then(kbs => {
+            let options = [];
+            for (let i = 0; i < kbs.length; i++) {
+                options.push({
+                    label: kbs[i].name,
+                    value: kbs[i].id
+                });
+            }
+            setKnowledgeBaseOptions(options);
         });
     }
 
@@ -75,7 +88,7 @@ const RobotEditor = (props) => {
 
         let vars = {}
         for (let k in values) {
-            if (k != 'name' && k != 'prompt_template_id' && k != 'implement' && values[k]) {
+            if (k !== 'name' && k !== 'prompt_template_id' && k !== 'implement' && k !== 'knowledge_base_id' && values[k]) {
                 vars[k] = values[k];
             }
         }
@@ -84,7 +97,8 @@ const RobotEditor = (props) => {
             name: values['name'],
             implement: values['implement'],
             prompt_template_id: values['prompt_template_id'],
-            variables: JSON.stringify(vars)
+            variables: JSON.stringify(vars),
+            knowledge_base_id: values['knowledge_base_id']
         }
         fetch(url, {
             method: method,
@@ -98,9 +112,9 @@ const RobotEditor = (props) => {
                 openMessage('error', 'Error.')
             }
         }).then(data => {
-            if (data.variables) {
+            /*if (data.variables) {
                 data.variables = data.variables
-            }
+            }*/
             setInstance(data)
         })
         .catch(e => openMessage('error', 'Error: ' + e));
@@ -111,7 +125,7 @@ const RobotEditor = (props) => {
         if (instance.prompt_template_id) {
             templateSelected(instance.prompt_template_id);
         }
-    }, []);
+    }, [instance.prompt_template_id]);
     return (
         <div>
             {messagePlaceholder}
@@ -151,6 +165,24 @@ const RobotEditor = (props) => {
                                 label: 'OpenAI/GPT-3.5',
                                 value: 'openai'
                             }
+                        ]}
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    label="Knowledge Base"
+                    name="knowledge_base_id"
+                    initialValue={instance.knowledge_base_id}
+                    style={{ width: '500px' }}
+                >
+                    <Select
+                        placeholder="Select a Knowledge base"
+                        options={[
+                            {
+                                label: "Don't use Knowledge base",
+                                value: null
+                            },
+                            ...kenowledgeBaseOptions
                         ]}
                     />
                 </Form.Item>

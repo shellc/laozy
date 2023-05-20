@@ -1,3 +1,15 @@
+body {
+    /*background: url('/static/img/bg.png') center center no-repeat fixed;
+    background-size: cover;
+
+    -webkit-background-size: cover !important; 
+    -moz-background-size: cover !important; 
+    -o-background-size: cover;*/
+}
 a {
     text-decoration: none;
+}
+
+.ant-layout-sider-trigger {
+    padding: 1rem;
 }

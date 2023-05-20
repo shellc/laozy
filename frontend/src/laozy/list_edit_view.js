@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 
 import {
-    Input,
     Button,
 } from 'antd'
 
@@ -17,13 +16,13 @@ export const ListAndEditView = (props = {}) => {
     }
 
     const deleteItem = (i) => {
-        props.delete(i).then(() => {props.load(setList)});
+        props.delete(i).then(() => { props.load(setList) });
     }
     const show = (eid) => {
-        document.getElementById(eid).style.display='inline';
+        document.getElementById(eid).style.display = 'inline';
     }
     const hide = (eid) => {
-        document.getElementById(eid).style.display='none';
+        document.getElementById(eid).style.display = 'none';
     }
 
     useEffect(() => {
@@ -31,37 +30,43 @@ export const ListAndEditView = (props = {}) => {
     }, [view]);
 
     return (
-        <div className='p-3'>
+        <div>
             {view === 'editor' ? (
                 <div>
-                    <div className='pb-2 border-bottom mb-3'>
-                        <Button type='none' onClick={() => setView(null)}><i className="fa-solid fa-angle-left"></i></Button>
+                    <div className='p-2 border-bottom mb-3 position-sticky z-1 top-0'
+                        style={{ backgroundColor: '#eee' }}
+                    >
+                        <Button type='none' onClick={() => setView(null)}><i className="fa-solid fa-bars-staggered"></i></Button>
                     </div>
                     {props.editor ? (
-                        <props.editor instance={instance} />
+                        <div className='p-3'>
+                            <props.editor instance={instance} />
+                        </div>
                     ) : null}
                 </div>
             ) : (
-                <div className='d-flex flex-row flex-wrap'>
+                <div className='p-3 d-flex flex-row flex-wrap'>
                     <div className='p-2'>
-                        <a href="#" onClick={() => { setView('editor'); setInstance({}) }}><div className='card border-0'>
-                            <div className='card-body'>
-                                <i className="fa-solid fa-plus"></i>
+                        <a href="#" onClick={() => { setView('editor'); setInstance({}) }}>
+                            <div className='card border-0 shadow-sm'>
+                                <div className='card-body'>
+                                    &nbsp;<i className="fa-solid fa-circle-plus"></i>&nbsp;
+                                </div>
                             </div>
-                        </div></a>
+                        </a>
                     </div>
                     {list && list.length > 0 && list.map((i, k) => (
                         <div className='p-2' key={i.id}>
-                            
-                            <div className='card border-0'>
+
+                            <div className='card border-0 shadow-sm'>
                                 <div className='card-body' onMouseOver={() => show('del_' + k)} onMouseLeave={() => hide('del_' + k)}>
-                                <a href="#" onClick={() => edit(i)}>{i.name}</a>
-                                    <a id={'del_' + k} href="#" style={{display: 'none'}} onClick={() => deleteItem(i)}>
+                                    <a href="#" onClick={() => edit(i)}>{i.name}</a>
+                                    <a id={'del_' + k} href="#" style={{ display: 'none' }} onClick={() => deleteItem(i)}>
                                         <i className="fa-solid fa-trash-can text-secondary ms-3"></i>
                                     </a>
                                 </div>
                             </div>
-                            
+
                         </div>
                     ))}
                 </div>

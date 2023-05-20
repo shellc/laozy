@@ -11,7 +11,10 @@ const entries = require('react-app-rewire-multiple-entry')([
         entry: 'src/laozy/laozy.js',
         template: 'public/laozy.html',
         outPath: '/laozy.html'
-    }
+    },
+    {
+        entry: 'src/index.js',
+    },
 ])
 
 module.exports = {

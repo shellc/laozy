@@ -10,3 +10,4 @@ from .channels import channels
 from .channels import channel_routes
 from .invitations import invitations
 from .tokens import tokens
+from .knowledges import knowledges

@@ -6,7 +6,9 @@ from starlette.routing import Route, Mount
 from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.staticfiles import StaticFiles
+from starlette.responses import RedirectResponse
 
+from . import settings
 from . import api
 from .message import queue
 from . import db
@@ -35,7 +37,10 @@ async def lifespan(app):
 
 # Routes
 routes = [
-    Route('/', endpoint=template.render('index.html')),
+    Route('/', endpoint=lambda _: RedirectResponse('/developer')),
+    Route('/accounts/login', endpoint=template.render('account.html',
+          context={'invitation_required': settings.get('INVITATION_REQUIRED', False)})),
+    Route('/developer', endpoint=template.render('developer.html')),
     Mount('/static', StaticFiles(directory='static'), name='static'),
     Mount('/api', app=api.entry, name='api'),
 ]
@@ -45,7 +50,8 @@ middleware = [
     Middleware(AuthenticationMiddleware, backend=auth.BasicAuthBackend())
 ]
 
-entry = Starlette(debug=True, routes=routes, middleware=middleware, lifespan=lifespan)
+entry = Starlette(debug=True, routes=routes,
+                  middleware=middleware, lifespan=lifespan)
 
 admin.enable_admin(entry)
 

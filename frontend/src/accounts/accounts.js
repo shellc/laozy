@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import {
-    Form
-} from 'antd';
 
 import { encode_base64 } from '../uitils/image';
 import { sha256 } from '../uitils/crypto'
@@ -14,7 +11,11 @@ const autoRefreshToken = () => {
     let expires_at = Cookies.get('expires_at');
     let now = Math.round(new Date().getTime() / 1000);
 
-    if (token && expires_at && expires_at - now < 7200 - 60) {
+    if (!token) {
+        window.location.href = '/accounts/login?next=' + window.location.href;
+    }
+
+    if (token && expires_at && expires_at - now < 60) {
         let req = {
             token: token,
         };
@@ -26,7 +27,7 @@ const autoRefreshToken = () => {
             },
             body: JSON.stringify(req),
         }).then(r => {
-            if (r.status == 200) {
+            if (r.status === 200) {
                 return r.json();
             } else {
                 window.location.href = '/accounts/login?next=' + window.location.href;
@@ -39,27 +40,33 @@ const autoRefreshToken = () => {
             let now = Math.round(new Date().getTime() / 1000);
             Cookies.set('created', now);
             Cookies.set('expires_at', now + (data.expires_at - data.created));
-            
-            setTimeout(autoRefreshToken, 30);
         }).catch(e => {
             window.location.href = '/accounts/login?next=' + window.location.href;
         });
-    } else {
-        window.location.href = '/accounts/login?next=' + window.location.href;
     }
+
+    setTimeout(autoRefreshToken, 30);
 }
 
 const LoginForm = (props) => {
     const [captchaSignature, setCaptchaSignature] = useState('');
     const [captchaData, setCaptchaData] = useState();
     const [error, setError] = useState();
+    const [formData, setFormData] = useState({});
 
-    const reloadCaptcha = () => {
-        fetch("/api/captcha").then(r => {
+    const reloadCaptcha = (signature = '') => {
+        fetch(`/api/captcha?signature=${signature}`).then(r => {
             setCaptchaSignature(r.headers.get('X-Captcha-Signature'));
             return r.arrayBuffer();
         }).then(data => {
             setCaptchaData("data:image/png;base64," + encode_base64(data));
+        });
+    }
+
+    const onChange = (e) => {
+        formData[e.target.name] = e.target.value;
+        sha256(formData['password']).then(pwd => {
+            sha256(formData['username'] + pwd).then(s => reloadCaptcha(s));
         });
     }
 
@@ -82,7 +89,7 @@ const LoginForm = (props) => {
                 },
                 body: JSON.stringify(req),
             }).then(r => {
-                if (r.status == 200) {
+                if (r.status === 200) {
                     return r.json();
                 } else {
                     setError("Login failed, please check if the username, password, and verification code are correct.")
@@ -115,14 +122,14 @@ const LoginForm = (props) => {
             ) : null}
             <div>
                 <div className="mb-4">
-                    <input type="text" className="form-control" id="username" name="username" placeholder="Username" required></input>
+                    <input type="text" className="form-control" id="username" name="username" placeholder="Username" required onBlur={onChange}></input>
                 </div>
                 <div className="mb-4">
-                    <input type="password" className="form-control" name="password" placeholder="Password" required></input>
+                    <input type="password" className="form-control" name="password" placeholder="Password" required onBlur={onChange}></input>
                 </div>
                 <div className="input-group mb-4">
                     <input type="captcha" className="form-control" name="captcha" placeholder="CAPTCHA" required></input>
-                    <span className='input-group-text p-0'><img src={captchaData} style={{ height: '30px' }} onClick={reloadCaptcha} /></span>
+                    <span className='input-group-text p-0'><img src={captchaData} style={{ height: '30px' }} onClick={onChange} /></span>
                 </div>
                 <input type='hidden' name='captcha_signature' value={captchaSignature} />
                 <button type="submit" className="btn btn-primary w-100">Sign in</button>
@@ -135,9 +142,10 @@ const RegisterForm = (props) => {
     const [captchaSignature, setCaptchaSignature] = useState('');
     const [captchaData, setCaptchaData] = useState();
     const [error, setError] = useState();
+    const [formData, setFormData] = useState({});
 
-    const reloadCaptcha = () => {
-        fetch("/api/captcha").then(r => {
+    const reloadCaptcha = (signature = '') => {
+        fetch(`/api/captcha?signature=${signature}`).then(r => {
             setCaptchaSignature(r.headers.get('X-Captcha-Signature'));
             return r.arrayBuffer();
         }).then(data => {
@@ -145,11 +153,18 @@ const RegisterForm = (props) => {
         });
     }
 
+    const onChange = (e) => {
+        formData[e.target.name] = e.target.value;
+        sha256(formData['password']).then(pwd => {
+            sha256(formData['username'] + pwd).then(s => reloadCaptcha(s));
+        });
+    }
+
     const register = (e) => {
         e.preventDefault();
 
         let password = e.target.password.value;
-        if (password != e.target.password_confirm.value) {
+        if (password !== e.target.password_confirm.value) {
             setError("The passwords entered twice must be the same.");
 
         }
@@ -159,7 +174,7 @@ const RegisterForm = (props) => {
             password: e.target.password.value,
             captcha: e.target.captcha.value,
             captcha_signature: captchaSignature,
-            invitation_code: e.target.invitation_code.value,
+            invitation_code: e.target.invitation_code ? e.target.invitation_code.value : null,
         };
         sha256(password).then(password_sha256 => {
             req.password = password_sha256;
@@ -171,9 +186,9 @@ const RegisterForm = (props) => {
                 },
                 body: JSON.stringify(req),
             }).then(r => {
-                if (r.status == 201) {
+                if (r.status === 201) {
                     window.location.href = props.next ? props.next : '/accounts/login';
-                } else if (r.status == '409') {
+                } else if (r.status === '409') {
                     setError("The user already exists.");
                 } else {
                     setError("An error has occurred, please check your input!");
@@ -200,21 +215,24 @@ const RegisterForm = (props) => {
 
             <div>
                 <div className="mb-4">
-                    <input type="text" className="form-control" id="username" name="username" placeholder="Username" required></input>
+                    <input type="text" className="form-control" id="username" name="username" placeholder="Username" required onBlur={onChange}></input>
                 </div>
                 <div className="mb-4">
-                    <input type="password" className="form-control" name="password" placeholder="Password" required></input>
+                    <input type="password" className="form-control" name="password" placeholder="Password" required onBlur={onChange}></input>
                 </div>
                 <div className="mb-4">
                     <input type="password" className="form-control" name="password_confirm" placeholder="Confirm your password" required></input>
                 </div>
                 <div className="input-group mb-4">
                     <input type="captcha" className="form-control" name="captcha" placeholder="CAPTACHA" required></input>
-                    <span className='input-group-text p-0'><img src={captchaData} style={{ height: '30px' }} onClick={reloadCaptcha} /></span>
+                    <span className='input-group-text p-0'><img src={captchaData} style={{ height: '30px' }} onClick={onChange} /></span>
                 </div>
-                <div className="mb-4">
-                    <input type="text" className="form-control" name="invitation_code" placeholder="Invitaion Code" required></input>
-                </div>
+                {props.invitation_required ? (
+                    <div className="mb-4">
+                        <input type="text" className="form-control" name="invitation_code" placeholder="Invitaion Code" required></input>
+                    </div>
+                ) : null}
+
                 <input type='hidden' name='captcha_signature' value={captchaSignature} />
                 <button type="submit" className="btn btn-primary w-100">Sign up</button>
             </div>
@@ -223,15 +241,15 @@ const RegisterForm = (props) => {
 }
 
 const AccountComponent = (props) => {
-    const [register, setRegister] = useState(props.register);
+    const [register, setRegister] = useState(props.default_view === 'register');
 
     return (<div>
         {register ? (
             <div>
                 <h1 className='mb-4 text-center fs-5 fw-normal'><i className="fa-solid fa-user-plus"></i> Sign up</h1>
-                <RegisterForm next={props.next} />
+                <RegisterForm next={props.next} invitation_required={props.invitation_required} />
                 <div className='mt-3'>
-                Already have an account, <a href="#" onClick={() => setRegister(false)}>Sign in</a>.
+                    Already have an account, <a href="#" onClick={() => setRegister(false)}>Sign in</a>.
                 </div>
             </div>
         ) : (
@@ -245,11 +263,11 @@ const AccountComponent = (props) => {
         )}
     </div>);
 }
-const createAccountComponent = (elementId) => {
+const createAccountComponent = (elementId, default_view = 'register', invitation_required = false, next = null) => {
     const root = ReactDOM.createRoot(document.getElementById(elementId));
     root.render(
         <React.StrictMode>
-            <AccountComponent />
+            <AccountComponent default_view={default_view} invitation_required={invitation_required} next={next} />
         </React.StrictMode>
     );
 }

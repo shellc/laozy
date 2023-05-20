@@ -1,4 +1,5 @@
 import time
+from typing import Union
 from starlette.authentication import requires
 from fastapi import Request, HTTPException
 from pydantic import BaseModel
@@ -22,6 +23,7 @@ class RobotModel(BaseModel):
     implement: str
     prompt_template_id:str
     variables: str
+    knowledge_base_id: Union[str, None] = None
 
 @entry.post('/robots', status_code=201)
 @requires(['authenticated'])
@@ -32,6 +34,7 @@ async def create(robot: RobotModel, request: Request):
         'implement': robot.implement,
         'prompt_template_id': robot.prompt_template_id,
         'variables': robot.variables,
+        'knowledge_base_id': robot.knowledge_base_id,
         'owner': request.user.userid,
         'created_time': int(time.time())
     }
@@ -50,6 +53,7 @@ async def update(id:str, robot: RobotModel, request: Request):
         'implement': robot.implement,
         'prompt_template_id': robot.prompt_template_id,
         'variables': robot.variables,
+        'knowledge_base_id': robot.knowledge_base_id
     }
     await robots.update(id, **r2u)
     r2u['id'] = r.id

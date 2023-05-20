@@ -130,11 +130,11 @@ const RouteEditor = (props) => {
                     <Select
                         options={[
                             {
-                                label: 'Web',
+                                label: <span><i className="fa-brands fa-html5"></i> Web</span>,
                                 value: 'web'
                             },
                             {
-                                label: 'WeChat Customer Service',
+                                label: <span><i className="fa-brands fa-weixin"></i> WeChat Customer Service</span>,
                                 value: 'wxkf'
                             }
                         ]}

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { Layout, Menu, theme } from 'antd'
+import { Layout, Menu, Space } from 'antd'
 import {
 
 } from '@ant-design/icons';
@@ -13,16 +13,17 @@ import { PromptTemplateListAndEditView } from './prompts.js';
 import { RobotListAndEditView } from './robots.js';
 import { ChannelListAndEditView } from './channels.js';
 import { RouteListAndEditView } from './routes.js';
-const { Sider, Content } = Layout
+import { KnowledgeListAndEditView } from './knowledges.js';
+const { Sider } = Layout
 
 const LaozyApp = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [activated, setActivated] = useState(null);
     const [content, setContent] = useState(false);
 
-    const {
+    /*const {
         token: { colorBgContainer },
-    } = theme.useToken();
+    } = theme.useToken();*/
 
     const onClick = (e) => {
         loadComponent(e.key);
@@ -36,6 +37,7 @@ const LaozyApp = () => {
             case 'robots': setContent(<RobotListAndEditView />); break;
             case 'channels': setContent(<ChannelListAndEditView />); break;
             case 'routes': setContent(<RouteListAndEditView />); break;
+            case 'knowledges': setContent(<KnowledgeListAndEditView />); break;
             default:
                 setContent(
                     <div className='p-5'>The feature has not been implemented yet..</div>
@@ -46,7 +48,7 @@ const LaozyApp = () => {
 
     useEffect(() => {
         let key = localStorage.getItem('laozy_activated_component_key');
-        loadComponent(key ? key : 'dashboard');
+        loadComponent(key ? key : 'developer');
     }, [])
 
     return (
@@ -62,8 +64,8 @@ const LaozyApp = () => {
                     height: '100vh',
                 }}
             >
-                <div className="logo">
-
+                <div className="logo text-center p-1">
+                    <a href="/developer"><span className='text-white fs-4 fw-bold d-block'>Laozy</span></a>
                 </div>
                 <Menu
                     onClick={onClick}
@@ -72,23 +74,23 @@ const LaozyApp = () => {
                     //defaultSelectedKeys={['dashboard']}
                     selectedKeys={[activated,]}
                     items={[
-                        {
+                        /*{
                             key: 'dashboard',
                             icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-gauge-high"></i></span>,
                             label: 'Home',
-                        },
+                        },*/
                         {
                             key: 'developer',
                             icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-bolt-lightning"></i></span>,
                             label: 'Developer',
                         },
-                        {
+                        /*{
                             key: 'review',
                             icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-comments"></i></span>,
                             label: 'Review',
-                        },
+                        },*/
                         {
-                            key: '3',
+                            key: 'knowledges',
                             icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-brain" /></span>,
                             label: 'Knowledges',
                         },
@@ -127,19 +129,21 @@ const LaozyApp = () => {
                                 },
                             ]
                         },
-                        {
+                        /*{
                             key: '8',
                             icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-gear"></i></span>,
                             label: 'Settings',
-                        },
+                        },*/
                     ]}
                 />
             </Sider>
             <Layout
                 id="content"
                 style={{
-
+                    height: '100vh',
+                    overflow: 'scroll',
                 }}
+                className='bg-light'
             >
                 {content}
             </Layout>

@@ -1,4 +1,4 @@
-import os
+import os, glob
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -15,6 +15,7 @@ install_requires = [
     'alembic',
     'langchain',
     'openai',
+    'chromadb'
 ]
 
 setup(
@@ -25,7 +26,8 @@ setup(
         'laozy': [],
         'migrations': ['**/*'],
     },
-    #include_package_data=True,
-    scripts=['setup.py', './bin/laozy', 'alembic.ini', 'requirements.txt'],
+    include_package_data=True,
+    data_files=[('templates', glob.glob('./templates/**', recursive=True)), ('static', glob.glob('./static/**', recursive=True))],
+    scripts=['setup.py', './bin/laozy', 'requirements.txt'],
     install_requires = install_requires
 )

@@ -6,6 +6,8 @@ Laozy 是一个用于构建和部署基于 LLMs 对话机器人的应用。
 
 通过 LangChain 调用 LLMs 生成对话，集成 chromadb 等向量数据库构建知识库。Laozy 提供 Prompt 设计和管理，构建的对话机器人可以通过 RESTful 接口、Web、微信客服等方式作为服务发布。
 
+![Arch](./assets/images/arch.png)
+
 ## 版本
 
 * 当前版本: 0.0.1

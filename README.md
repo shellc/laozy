@@ -6,6 +6,8 @@ Laozy is an application used to build and deploy LLMs-based dialogue robots.
 
 It calls LLMs through LangChain to generate dialogues and integrates vector databases such as chromadb to build knowledge bases. Laozy provides prompt design and management, and the built dialogue robots can be published as services through RESTful interfaces, web, WeChat customer service, and other means.
 
+![Arch](./assets/images/arch.png)
+
 ## Verson
 
 * Current version: 0.0.1

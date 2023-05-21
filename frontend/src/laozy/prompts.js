@@ -69,8 +69,8 @@ const PromptTemplateEditor = (props) => {
         setPrompts([...prompts]);
     }
 
-    const onRoleChange = (k, v) => {
-        prompts[k].role = v;
+    const onRoleChange = (k, e) => {
+        prompts[k].role = e.target.value;
     }
 
     const onPromptTemplateChange = (k, v) => {
@@ -155,7 +155,7 @@ const PromptTemplateEditor = (props) => {
                                     <Radio.Group
                                         optionType="button"
                                         buttonStyle="solid"
-                                        size='small'
+                                        //size='small'
                                         onChange={(e) => onRoleChange(k, e)}
                                         defaultValue={prompts[k].role}
                                         options={[

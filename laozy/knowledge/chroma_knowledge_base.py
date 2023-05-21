@@ -7,6 +7,7 @@ from laozy.knowledge.base_knowledge_base import Knowlege
 from .base_knowledge_base import KnowledgeBase
 from ..utils import uuid
 
+from ..logging import log
 
 class ChromaKnowledgeBase(KnowledgeBase):
     def __init__(self, persist_dir: str) -> None:
@@ -54,6 +55,8 @@ class ChromaKnowledgeBase(KnowledgeBase):
                 result = col.query(**req)
         except chromadb.errors.NoDatapointsException as e:
             pass
+        except chromadb.errors.NoIndexException as e:
+            log.warning(e)
 
         ret = []
         if result:

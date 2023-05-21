@@ -68,7 +68,7 @@ def validate_template(template: str):
         if len(j) > 0 and 'prompts' not in j:
             raise ValueError()
 
-        for p in j['Prompt']:
+        for p in j['prompts']:
             if len(p) > 0 and ('role' not in p or 'template' not in p):
                 raise ValueError()
             if len(p) > 2:
@@ -84,7 +84,7 @@ __var_re = re.compile(r'{(.*?)}')
 def extract_variables(template: str):
     if not template or 'prompts' not in template:
         return
-    prompts = template['Prompt']
+    prompts = template['prompts']
 
     variables = set()
     for p in prompts:

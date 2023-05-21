@@ -208,10 +208,10 @@ const KnowledgeManager = (props) => {
                             <div>
                                 <div>{item.content}</div>
                                 <div className='mt-2'>
-                                    <Tag>D:{Number.parseFloat(item.distance).toFixed(2)}</Tag>
-                                    {Object.keys(item.metadata).map((v, i) => (
+                                    {item.distance ? <Tag>D:{Number.parseFloat(item.distance).toFixed(2)}</Tag> : null}
+                                    {item.metadata ? Object.keys(item.metadata).map((v, i) => (
                                         <Tag key={'k_' + i}>{v} : {item.metadata[v]}</Tag>
-                                    ))}
+                                    )) : null}
                                 </div>
                             </div>
                         </List.Item>

@@ -57,17 +57,19 @@ async def remove_knowledge_base(id: str, request: Request):
 
 @entry.post('/knowledges/{knowledge_id}', status_code=201, tags=['Knowledge Base'])
 @requires(['authenticated'])
-async def save_knowledge(knowledge_id: str, kl: List[Knowlege], request: Request):
-    for k in kl:
-        await knowledge_base.save(collection=knowledge_id, k=k)
+async def save_knowledge(knowledge_id: str, knowledges: List[Knowlege], request: Request):
+    await knowledge_base.save(collection=knowledge_id, knowledges=knowledges)
 
 
 @entry.get('/knowledges/{knowledge_id}', status_code=200, tags=['Knowledge Base'])
 @requires(['authenticated'])
-async def retrieve_knowledges(knowledge_id: str, content: Union[str, None] = None, request: Request = None):
+async def retrieve_knowledges(knowledge_id: str, content: Union[str, None] = None, tag: Union[str, None] = None, request: Request = None):
     if not content:
         content = ''
-    return await knowledge_base.retrieve(collection=knowledge_id, content=content, topk=50)
+    metadata = {}
+    if tag:
+        metadata['tag'] = tag
+    return await knowledge_base.retrieve(collection=knowledge_id, content=content, metadata=metadata, topk=50)
 
 @entry.delete('/knowledges/{knowledge_id}/{item_id}', status_code=204, tags=['Knowledge Base'])
 @requires(['authenticated'])

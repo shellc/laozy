@@ -7,6 +7,7 @@ import {
     Input,
     Button,
     List,
+    Tag
 } from 'antd'
 
 import { ListAndEditView } from './list_edit_view';
@@ -80,8 +81,8 @@ const KnowledgeEditor = (props) => {
                 layout="inline"
                 className='col-12 col-lg-6'
             >
+                <Button type='none' className=''>Name</Button>
                 <Form.Item
-                    label="Name"
                     name="name"
                     rules={[
                         {
@@ -147,7 +148,8 @@ const KnowledgeManager = (props) => {
     const retrieve = () => {
         setLoading(true);
         let values = form.getFieldsValue();
-        fetch(`/api/knowledges/${props.id}?content=${values['content'] ? values['content'] : ''}`)
+        let tag = values['tag'] ? values['tag'] : '';
+        fetch(`/api/knowledges/${props.id}?content=${values['content'] ? encodeURI(values['content']) : ''}&tag=${tag}`)
             .then(r => r.json())
             .then(data => {
                 setData(data);
@@ -203,9 +205,15 @@ const KnowledgeManager = (props) => {
                         <List.Item
                             actions={[<a href="#" onClick={() => deleteKnowledge(index)}><i className="fa-solid fa-trash-can"></i></a>]}
                         >
-
-                            {item.content}
-
+                            <div>
+                                <div>{item.content}</div>
+                                <div className='mt-2'>
+                                    <Tag>D:{Number.parseFloat(item.distance).toFixed(2)}</Tag>
+                                    {Object.keys(item.metadata).map((v, i) => (
+                                        <Tag key={'k_' + i}>{v} : {item.metadata[v]}</Tag>
+                                    ))}
+                                </div>
+                            </div>
                         </List.Item>
                     )}
                     style={{ backgroundColor: '#fff' }}

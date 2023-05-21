@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { Layout, Menu, Space } from 'antd'
+import { Layout, Menu } from 'antd'
 import {
 
 } from '@ant-design/icons';
@@ -14,6 +14,7 @@ import { RobotListAndEditView } from './robots.js';
 import { ChannelListAndEditView } from './channels.js';
 import { RouteListAndEditView } from './routes.js';
 import { KnowledgeListAndEditView } from './knowledges.js';
+import { Dashboard } from './dashboard.js';
 const { Sider } = Layout
 
 const LaozyApp = () => {
@@ -32,6 +33,7 @@ const LaozyApp = () => {
     const loadComponent = (key) => {
         setActivated(key);
         switch (key) {
+            case 'dashboard': setContent(<Dashboard />); break;
             case 'developer': setContent(<Developer />); break;
             case 'prompts': setContent(<PromptTemplateListAndEditView />); break;
             case 'robots': setContent(<RobotListAndEditView />); break;
@@ -71,7 +73,7 @@ const LaozyApp = () => {
                 }}
             >
                 <div className="logo text-center p-1">
-                    <a href="/developer"><span className='text-dark fs-4 fw-bold d-block'>Laozy</span></a>
+                    <a href="/developer"><span className='text-dark fs-5 fw-bold d-block'>Laozy</span></a>
                 </div>
                 <Menu
                     onClick={onClick}
@@ -80,14 +82,14 @@ const LaozyApp = () => {
                     style={{
                         border: 'none'
                     }}
-                    //defaultSelectedKeys={['dashboard']}
+                    defaultSelectedKeys={['dashboard']}
                     selectedKeys={[activated,]}
                     items={[
-                        /*{
+                        {
                             key: 'dashboard',
                             icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-gauge-high"></i></span>,
                             label: 'Home',
-                        },*/
+                        },
                         {
                             key: 'developer',
                             icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-bolt-lightning"></i></span>,

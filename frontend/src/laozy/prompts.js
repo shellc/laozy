@@ -203,7 +203,7 @@ const PromptTemplateEditor = (props) => {
                         ) : null)}
                     </div>
                 </div>
-                <Button type='primary' htmlType='submit' className='mt-2'>Submit</Button>
+                <Button type='primary' htmlType='submit' className='mt-2'>Save</Button>
             </Form>
         </div>
     );

@@ -225,7 +225,7 @@ const RobotEditor = (props) => {
                     </Form.Item>
                 ))}
 
-                <Button type='primary' htmlType='submit' className='mt-3'>Submit</Button>
+                <Button type='primary' htmlType='submit' className='mt-3'>Save</Button>
             </Form>
         </div>
     );

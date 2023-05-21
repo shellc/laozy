@@ -137,7 +137,7 @@ async def create_token(credential: Union[Credential, None] = None):
 
         # Validate token
         if credential.token:
-            token = tokens.get(credential.token)
+            token = await tokens.get(credential.token)
             if not token or token.expires_at > int(time.time()):
                 raise err
             username = token.username

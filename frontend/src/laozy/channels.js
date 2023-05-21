@@ -11,7 +11,7 @@ import {
 
 import { ListAndEditView } from './list_edit_view';
 
-const { TextArea } = Input;
+//const { TextArea } = Input;
 
 export const ChannelListAndEditView = () => {
     const loadChannels = (setState) => {
@@ -26,6 +26,7 @@ export const ChannelListAndEditView = () => {
         'load': loadChannels,
         'delete': deleteItem,
         'editor': ChannelEditor,
+        'label': 'Channel'
     });
     return parent;
 }
@@ -108,7 +109,7 @@ const ChannelEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.name}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Input />
                 </Form.Item>
@@ -123,7 +124,7 @@ const ChannelEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.robot_id}
-                    style={{ width: '300px' }}
+                    className='col-lg-6'
                 >
                     <Select
                         options={robotSelecteOptions}

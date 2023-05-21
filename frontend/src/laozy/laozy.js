@@ -58,19 +58,28 @@ const LaozyApp = () => {
                 minHeight: '100vh',
             }}
         >
-            <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} breakpoint="lg"
+            <Sider 
+                collapsible
+                collapsed={collapsed} 
+                onCollapse={(value) => setCollapsed(value)} 
+                breakpoint="lg"
+                theme="light"
                 style={{
                     overflow: 'auto',
                     height: '100vh',
+                    borderRight: '1px #eee solid'
                 }}
             >
                 <div className="logo text-center p-1">
-                    <a href="/developer"><span className='text-white fs-4 fw-bold d-block'>Laozy</span></a>
+                    <a href="/developer"><span className='text-dark fs-4 fw-bold d-block'>Laozy</span></a>
                 </div>
                 <Menu
                     onClick={onClick}
-                    theme="dark"
+                    theme="light"
                     mode="inline"
+                    style={{
+                        border: 'none'
+                    }}
                     //defaultSelectedKeys={['dashboard']}
                     selectedKeys={[activated,]}
                     items={[
@@ -143,7 +152,7 @@ const LaozyApp = () => {
                     height: '100vh',
                     overflow: 'scroll',
                 }}
-                className='bg-light'
+                className='bg-white'
             >
                 {content}
             </Layout>

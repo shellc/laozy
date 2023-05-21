@@ -7,7 +7,7 @@ import {
     Form,
     Input,
     Button,
-    Select
+    Radio
 } from 'antd'
 
 const { TextArea } = Input;
@@ -24,7 +24,8 @@ export const PromptTemplateListAndEditView = () => {
     let parent = ListAndEditView({
         'load': loadPrompts,
         'delete': deleteItem,
-        'editor': PromptTemplateEditor
+        'editor': PromptTemplateEditor,
+        'label': 'Prompt Template'
     });
     return parent;
 }
@@ -138,20 +139,23 @@ const PromptTemplateEditor = (props) => {
                         },
                     ]}
                     initialValue={template.name}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Input />
                 </Form.Item>
-                <div className='card'>
-                    <div className='card-header'>
-                        Prompts
-                        <Button size='small' className='ms-3' onClick={addPrompt}><i className="fa-solid fa-plus"></i></Button>
+                <div className='card border-0'>
+                    <div className='card-header bg-white border-0 px-0'>
+                        <Button type='dashed'  className='' onClick={addPrompt}><i className="fa-solid fa-plus me-2"></i> Prompt</Button>
                     </div>
-                    <div className='card-body'>
+                    <div className='card-body p-0'>
                         {Object.keys(prompts).map((v, k) => prompts[k] ? (
                             <div className='card p-3 mb-3 bg-light border-0' key={k}>
-                                <div className='d-flex flex-row'>
-                                    <Select
+                                <div className='d-flex flex-row mb-3'>
+                                    <div>
+                                    <Radio.Group
+                                        optionType="button"
+                                        buttonStyle="solid"
+                                        size='small'
                                         onChange={(e) => onRoleChange(k, e)}
                                         defaultValue={prompts[k].role}
                                         options={[
@@ -177,8 +181,9 @@ const PromptTemplateEditor = (props) => {
                                             }
                                         ]}
                                         style={{ width: '150px' }}
-                                        className='mb-2'
+                                        className='d-inline'
                                     />
+                                    </div>
                                     <Button size='small' className='ms-auto me-0' onClick={() => deletePrompt(k)}><i className="fa-solid fa-minus"></i></Button>
                                 </div>
                                 <Form.Item
@@ -190,6 +195,7 @@ const PromptTemplateEditor = (props) => {
                                         },
                                     ]}
                                     style={{}}
+                                    className='mb-0'
                                 >
                                     <TextArea autoSize onChange={(e) => onPromptTemplateChange(k, e.target.value)} />
                                 </Form.Item>
@@ -197,7 +203,7 @@ const PromptTemplateEditor = (props) => {
                         ) : null)}
                     </div>
                 </div>
-                <Button type='primary' htmlType='submit' className='mt-3'>Submit</Button>
+                <Button type='primary' htmlType='submit' className='mt-2'>Submit</Button>
             </Form>
         </div>
     );

@@ -26,6 +26,7 @@ export const RobotListAndEditView = () => {
         'load': loadRobots,
         'delete': deleteItem,
         'editor': RobotEditor,
+        'label': 'Robot'
     });
     return parent;
 }
@@ -142,7 +143,7 @@ const RobotEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.name}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Input />
                 </Form.Item>
@@ -157,7 +158,7 @@ const RobotEditor = (props) => {
                         },
                     ]}
                     initialValue='openai'
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Select
                         options={[
@@ -173,7 +174,7 @@ const RobotEditor = (props) => {
                     label="Knowledge Base"
                     name="knowledge_base_id"
                     initialValue={instance.knowledge_base_id}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Select
                         placeholder="Select a Knowledge base"
@@ -197,7 +198,7 @@ const RobotEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.prompt_template_id}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Select
                         placeholder="Select a prompt template"

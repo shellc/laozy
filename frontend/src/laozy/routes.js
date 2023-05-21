@@ -11,7 +11,7 @@ import {
 
 import { ListAndEditView } from './list_edit_view';
 
-const { TextArea } = Input;
+//const { TextArea } = Input;
 
 export const RouteListAndEditView = () => {
     const loadRoutes = (setState) => {
@@ -26,6 +26,7 @@ export const RouteListAndEditView = () => {
         'load': loadRoutes,
         'delete': deleteItem,
         'editor': RouteEditor,
+        'label': 'Channel Route'
     });
     return parent;
 }
@@ -110,7 +111,7 @@ const RouteEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.name}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Input />
                 </Form.Item>
@@ -125,7 +126,7 @@ const RouteEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.connector}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Select
                         options={[
@@ -151,7 +152,7 @@ const RouteEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.connector_id}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Input />
                 </Form.Item>
@@ -166,7 +167,7 @@ const RouteEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.channel_id}
-                    style={{ width: '500px' }}
+                    className='col-lg-6'
                 >
                     <Select
                         options={channelSelecteOptions}

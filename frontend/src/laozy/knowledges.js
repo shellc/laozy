@@ -26,6 +26,7 @@ export const KnowledgeListAndEditView = () => {
         'load': loadKnowledges,
         'delete': deleteItem,
         'editor': KnowledgeEditor,
+        'label': 'Knowledge Base'
     });
     return parent;
 }
@@ -77,6 +78,7 @@ const KnowledgeEditor = (props) => {
             <Form
                 onFinish={update}
                 layout="inline"
+                className='col-12 col-lg-6'
             >
                 <Form.Item
                     label="Name"
@@ -88,7 +90,7 @@ const KnowledgeEditor = (props) => {
                         },
                     ]}
                     initialValue={instance.name}
-                    style={{ width: '300px' }}
+                    className='flex-grow-1'
                 >
                     <Input />
                 </Form.Item>
@@ -156,7 +158,7 @@ const KnowledgeManager = (props) => {
     const deleteKnowledge = (index) => {
         console.log(index);
         let id = data[index].id;
-        
+
         setLoading(true);
         fetch(`/api/knowledges/${props.id}/${id}`, {
             method: 'DELETE'

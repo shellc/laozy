@@ -52,7 +52,7 @@ export const Developer = () => {
 
     return (
         <div>
-            <div className='p-2 border-bottom' style={{ height: headerHeight }}>
+            <div className='p-2 border-bottom border-light' style={{ height: headerHeight }}>
                 <div className='col-lg-3 mx-auto'>
                     {options.length > 0 ? (
                         <Select
@@ -66,6 +66,7 @@ export const Developer = () => {
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
+                            bordered={false}
                         >
 
                         </Select>

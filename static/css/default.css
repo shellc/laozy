@@ -12,4 +12,5 @@ a {
 
 .ant-layout-sider-trigger {
     padding: 1rem;
+    border-right: 1px #eee solid;
 }

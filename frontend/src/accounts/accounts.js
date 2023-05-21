@@ -52,22 +52,24 @@ const LoginForm = (props) => {
     const [captchaSignature, setCaptchaSignature] = useState('');
     const [captchaData, setCaptchaData] = useState();
     const [error, setError] = useState();
-    const [formData, setFormData] = useState({});
 
-    const reloadCaptcha = (signature = '') => {
-        fetch(`/api/captcha?signature=${signature}`).then(r => {
-            setCaptchaSignature(r.headers.get('X-Captcha-Signature'));
-            return r.arrayBuffer();
-        }).then(data => {
-            setCaptchaData("data:image/png;base64," + encode_base64(data));
+    const reloadCaptcha = () => {
+        let form = document.getElementById('signin-form');
+
+        sha256(form.password.value).then(pwd => {
+            sha256(form.username.value + pwd).then(signature => {
+                fetch(`/api/captcha?signature=${signature}`).then(r => {
+                    setCaptchaSignature(r.headers.get('X-Captcha-Signature'));
+                    return r.arrayBuffer();
+                }).then(data => {
+                    setCaptchaData("data:image/png;base64," + encode_base64(data));
+                });
+            });
         });
     }
 
     const onChange = (e) => {
-        formData[e.target.name] = e.target.value;
-        sha256(formData['password']).then(pwd => {
-            sha256(formData['username'] + pwd).then(s => reloadCaptcha(s));
-        });
+        reloadCaptcha();
     }
 
     const login = (e) => {
@@ -114,7 +116,7 @@ const LoginForm = (props) => {
     }, []);
 
     return (
-        <form onSubmit={login} className='needs-validation'>
+        <form id='signin-form' onSubmit={login} className='needs-validation'>
             {error ? (
                 <div className="alert alert-danger" role="alert">
                     {error}
@@ -122,14 +124,16 @@ const LoginForm = (props) => {
             ) : null}
             <div>
                 <div className="mb-4">
-                    <input type="text" className="form-control" id="username" name="username" placeholder="Username" required onBlur={onChange}></input>
+                    <i className="fa-solid fa-circle-user position-absolute ps-2 text-secondary" style={{lineHeight: '2.5rem'}}></i>
+                    <input type="text" className="form-control ps-4" id="username" name="username" placeholder="Username" required onBlur={onChange}></input>
                 </div>
                 <div className="mb-4">
-                    <input type="password" className="form-control" name="password" placeholder="Password" required onBlur={onChange}></input>
+                    <i className="fa-solid fa-key position-absolute ps-2 text-secondary" style={{lineHeight: '2.5rem'}}></i>
+                    <input type="password" className="form-control ps-4" name="password" placeholder="Password" required onBlur={onChange}></input>
                 </div>
                 <div className="input-group mb-4">
                     <input type="captcha" className="form-control" name="captcha" placeholder="CAPTCHA" required></input>
-                    <span className='input-group-text p-0'><img src={captchaData} style={{ height: '30px' }} onClick={onChange} /></span>
+                    <span className='input-group-text p-0'><img alt="" src={captchaData} style={{ height: '30px' }} onClick={onChange} /></span>
                 </div>
                 <input type='hidden' name='captcha_signature' value={captchaSignature} />
                 <button type="submit" className="btn btn-primary w-100">Sign in</button>
@@ -225,7 +229,7 @@ const RegisterForm = (props) => {
                 </div>
                 <div className="input-group mb-4">
                     <input type="captcha" className="form-control" name="captcha" placeholder="CAPTACHA" required></input>
-                    <span className='input-group-text p-0'><img src={captchaData} style={{ height: '30px' }} onClick={onChange} /></span>
+                    <span className='input-group-text p-0'><img alt='' src={captchaData} style={{ height: '30px' }} onClick={onChange} /></span>
                 </div>
                 {props.invitation_required ? (
                     <div className="mb-4">

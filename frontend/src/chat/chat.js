@@ -148,7 +148,7 @@ export const Chat = (props) => {
             style={{
                 height: props.height ? props.height : '600px',
             }}
-            className="p-3"
+            className="p-3 bg-white"
         >
             <div id="history" className='mb-auto overflow-scroll'>
                 <MessageHistory history={history} />
@@ -173,7 +173,7 @@ export const Chat = (props) => {
                 onFinish={onSubmit}
                 style={{
                 }}
-                className='mb-0 pt-3 border-top'
+                className='mb-0 pt-3 border-top border-light'
             >
                 <Row wrap={false} align="bottom">
                     <Col flex="auto">
@@ -214,7 +214,7 @@ const Message = (props) => {
                 </div>
                 <div className='card mx-3 border-0'
                     style={{
-                        backgroundColor: props.role === 'human' ? '#d1e7dd' : '#fff'
+                        backgroundColor: props.role === 'human' ? '#d1e7dd' : '#f8f9fa'
                     }}
                 >
                     <div className='card-body px-3 pt-3 pb-0'>

@@ -30,9 +30,12 @@ class WebMessage(BaseModel):
     content: str
 
 
-@entry.get('/connectors/messages')
+@entry.get('/connectors/messages', tags=['Connector'])
 @requires('authenticated')
-async def get_messages(connector_id: str, request: Request):
+async def get_history(connector_id: str, request: Request):
+    """
+    Get conversation history from the connector.
+    """
     userid = request.user.userid
     route = await channel_routes.get_route('web', connector_id)
     if not route:
@@ -41,9 +44,9 @@ async def get_messages(connector_id: str, request: Request):
     return histories
 
 
-@entry.post('/connectors/messages')
+@entry.post('/connectors/messages', tags=['Connector'])
 @requires('authenticated')
-async def new_message(wmsg: WebMessage, sse: bool = False, request: Request = None):
+async def send_message(wmsg: WebMessage, sse: bool = False, request: Request = None):
     userid = request.user.userid
     msg = Message(connector_id=wmsg.connector_id,
                   content=wmsg.content, connector_userid=userid)
@@ -89,8 +92,8 @@ wxkf_connector = WXKFConnector(
 __buildin_connectors['wxkf'] = wxkf_connector
 
 
-@entry.get('/connectors/wxkf/notifications')
-async def wxkf_verify(msg_signature: str, timestamp: int, nonce: int, echostr: str, request: Request):
+@entry.get('/connectors/wxkf/notifications', tags=['WeChat'])
+async def service_verify(msg_signature: str, timestamp: int, nonce: int, echostr: str, request: Request):
     """
     Provide a callback URL for WeChat customer service to verify our service.
     """
@@ -103,8 +106,8 @@ async def wxkf_verify(msg_signature: str, timestamp: int, nonce: int, echostr: s
         return Response(content=reply_echostr)
 
 
-@entry.post('/connectors/wxkf/notifications')
-async def wxkf_notify(msg_signature: str, timestamp: int, nonce: int, request: Request):
+@entry.post('/connectors/wxkf/notifications', tags=['WeChat'])
+async def message_notify(msg_signature: str, timestamp: int, nonce: int, request: Request):
     """
     Provide a callback URL to receive notifications from WeChat customer service.
     """

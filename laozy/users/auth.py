@@ -26,8 +26,17 @@ from ..utils import uuid, sha256
 secrect_key = settings.get('SECRECT_KEY')
 
 
-@api.entry.get("/captcha")
+@api.entry.get("/captcha", tags=['User'])
 async def genereate_captcha(signature: str = None):
+    """Generate a CAPTCHA
+
+    A CAPTCHA is a test that is used to separate humans and machines. CAPTCHA stands for "Completely Automated Public Turing test to tell Computers and Humans Apart." It is normally an image test or a simple mathematics problem which a human can read or solve, but a computer cannot.
+    -- From: [wikipedia](https://simple.wikipedia.org/wiki/CAPTCHA)
+
+    @param  signature   The signature is used to generate a CAPTCHA, which is used to prevent replay attacks. It usually represents the part of the form data that needs to be protected.
+    
+    @return image/png
+    """
     chars = []
     for i in range(4):
         chars.append(chr(random.randint(65, 90)))
@@ -56,7 +65,7 @@ class RegisterModel(BaseModel):
     captcha_signature: str
 
 
-@api.entry.post('/users', status_code=status.HTTP_201_CREATED)
+@api.entry.post('/users', status_code=status.HTTP_201_CREATED, tags=['User'])
 async def create_user(register: RegisterModel):
     bad_request = HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
@@ -101,7 +110,7 @@ class UserModel(BaseModel):
     username: str
 
 
-@api.entry.get('/users/{userid}')
+@api.entry.get('/users/{userid}', tags=['User'])
 async def get_user(userid: str):
     u = await users.get(userid)
     if not u:
@@ -118,7 +127,7 @@ class Credential(BaseModel):
     token: Union[str, None] = None
 
 
-@api.entry.post('/users/tokens')
+@api.entry.post('/users/tokens', tags=['User'])
 # @requires('authenticated')
 async def create_token(credential: Union[Credential, None] = None):
     err = HTTPException(status_code=status.HTTP_403_FORBIDDEN)

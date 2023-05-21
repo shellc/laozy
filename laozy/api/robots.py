@@ -8,14 +8,14 @@ from .entry import entry
 from ..db import robots
 from ..utils import uuid
 
-@entry.get('/robots')
+@entry.get('/robots', tags=['Robot'])
 @requires(['authenticated'])
-async def list(request: Request):
+async def list_robots(request: Request):
     return await robots.list_by_owner(request.user.userid)
 
-@entry.get('/robots/{id}')
+@entry.get('/robots/{id}', tags=['Robot'])
 @requires(['authenticated'])
-async def get(id:str, request: Request):
+async def get_robot(id:str, request: Request):
     return await robots.get(id)
 
 class RobotModel(BaseModel):
@@ -25,9 +25,9 @@ class RobotModel(BaseModel):
     variables: str
     knowledge_base_id: Union[str, None] = None
 
-@entry.post('/robots', status_code=201)
+@entry.post('/robots', status_code=201, tags=['Robot'])
 @requires(['authenticated'])
-async def create(robot: RobotModel, request: Request):
+async def create_robot(robot: RobotModel, request: Request):
     r = {
         'id': uuid(),
         'name': robot.name,
@@ -41,9 +41,9 @@ async def create(robot: RobotModel, request: Request):
     await robots.create(**r)
     return r
 
-@entry.put('/robots/{id}', status_code=201)
+@entry.put('/robots/{id}', status_code=201, tags=['Robot'])
 @requires(['authenticated'])
-async def update(id:str, robot: RobotModel, request: Request):
+async def modify_robot(id:str, robot: RobotModel, request: Request):
     r = await robots.get(id)
     if not r:
         raise HTTPException(404, "Not found.")
@@ -59,7 +59,7 @@ async def update(id:str, robot: RobotModel, request: Request):
     r2u['id'] = r.id
     return r2u
 
-@entry.delete('/robots/{id}', status_code=204)
+@entry.delete('/robots/{id}', status_code=204, tags=['Robot'])
 @requires(['authenticated'])
-async def delete(id:str, request: Request):
+async def remove_robot(id:str, request: Request):
     await robots.delete(id)

@@ -7,18 +7,18 @@ from .entry import entry
 from ..db import channels
 from ..utils import uuid
 
-@entry.get('/channels')
+@entry.get('/channels', tags=['Channel'])
 @requires(['authenticated'])
-async def list(request: Request):
+async def list_channels(request: Request):
     return await channels.list_by_owner(request.user.userid)
 
 class ChannelModel(BaseModel):
     name: str
     robot_id: str
 
-@entry.post('/channels', status_code=201)
+@entry.post('/channels', status_code=201, tags=['Channel'])
 @requires(['authenticated'])
-async def create(ch: ChannelModel, request: Request):
+async def create_channel(ch: ChannelModel, request: Request):
     r = {
         'id': uuid(),
         'name': ch.name,
@@ -29,9 +29,9 @@ async def create(ch: ChannelModel, request: Request):
     await channels.create(**r)
     return r
 
-@entry.put('/channels/{id}', status_code=201)
+@entry.put('/channels/{id}', status_code=201, tags=['Channel'])
 @requires(['authenticated'])
-async def update(id:str, ch: ChannelModel, request: Request):
+async def modify_channel(id:str, ch: ChannelModel, request: Request):
     r = await channels.get(id)
     if not r:
         raise HTTPException(404, "Not found.")
@@ -44,7 +44,7 @@ async def update(id:str, ch: ChannelModel, request: Request):
     r2u['id'] = r.id
     return r2u
 
-@entry.delete('/channels/{id}', status_code=204)
+@entry.delete('/channels/{id}', status_code=204, tags=['Channel'])
 @requires(['authenticated'])
-async def delete(id:str, request: Request):
+async def remove_channel(id:str, request: Request):
     await channels.delete(id)

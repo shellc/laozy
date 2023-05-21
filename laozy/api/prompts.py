@@ -11,14 +11,14 @@ from ..db import prompt_templates
 from ..utils import uuid
 
 
-@entry.get('/prompts/{id}')
+@entry.get('/prompts/{id}', tags=['Prompt'])
 @requires(['authenticated'])
 async def get_prompt_template(id:str, request: Request):
     return await prompt_templates.get(id)
 
-@entry.get('/prompts')
+@entry.get('/prompts', tags=['Prompt'])
 @requires(['authenticated'])
-async def list_prompts(request: Request):
+async def list_prompt_templates(request: Request):
     return await prompt_templates.getbyowner(request.user.userid)
 
 
@@ -27,9 +27,9 @@ class PromptTemplateModel(BaseModel):
     template: str
 
 
-@entry.post('/prompts', status_code=201)
+@entry.post('/prompts', status_code=201, tags=['Prompt'])
 @requires(['authenticated'])
-async def create(template: PromptTemplateModel, request: Request):
+async def create_prompt_template(template: PromptTemplateModel, request: Request):
     j = validate_template(template.template)
     variables = json.dumps(extract_variables(j), ensure_ascii=False)
 
@@ -45,9 +45,9 @@ async def create(template: PromptTemplateModel, request: Request):
     return t
 
 
-@entry.put('/prompts/{id}', status_code=200)
+@entry.put('/prompts/{id}', status_code=200, tags=['Prompt'])
 @requires(['authenticated'])
-async def update(id: str, template: PromptTemplateModel, request: Request):
+async def modify_prompt_template(id: str, template: PromptTemplateModel, request: Request):
     j = validate_template(template.template)
     variables = json.dumps(extract_variables(j), ensure_ascii=False)
 
@@ -68,7 +68,7 @@ def validate_template(template: str):
         if len(j) > 0 and 'prompts' not in j:
             raise ValueError()
 
-        for p in j['prompts']:
+        for p in j['Prompt']:
             if len(p) > 0 and ('role' not in p or 'template' not in p):
                 raise ValueError()
             if len(p) > 2:
@@ -84,7 +84,7 @@ __var_re = re.compile(r'{(.*?)}')
 def extract_variables(template: str):
     if not template or 'prompts' not in template:
         return
-    prompts = template['prompts']
+    prompts = template['Prompt']
 
     variables = set()
     for p in prompts:
@@ -93,7 +93,7 @@ def extract_variables(template: str):
             variables.add(v)
     return list(variables)
 
-@entry.delete('/prompts/{id}', status_code=204)
+@entry.delete('/prompts/{id}', status_code=204, tags=['Prompt'])
 @requires(['authenticated'])
-async def delete(id:str, request: Request):
+async def remove_prompt_template(id:str, request: Request):
     await prompt_templates.delete(id)

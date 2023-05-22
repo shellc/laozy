@@ -1,0 +1,19 @@
+{
+	"short_name": "{{app.name}}",
+	"name": "{{app.name}}",
+	"display": "fullscreen",
+	"icons": [{
+		"src": "/static/img/icon192x192.png",
+		"sizes": "192x192",
+		"type": "image/png"
+	},
+	{
+		"src": "/static/img/icon512x512.png",
+		"sizes": "512x512",
+		"type": "image/png"
+	}],
+	
+	"start_url": "/apps/{{app.id}}",
+	"theme_color": "#fff",
+	"background_color": "#fff"
+}

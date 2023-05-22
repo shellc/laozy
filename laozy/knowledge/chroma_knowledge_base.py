@@ -89,7 +89,7 @@ class ChromaKnowledgeBase(KnowledgeBase):
         return ret
     
     async def delete(self, collection: str, id: str):
-        col = self.client.get_collection(name=collection, embedding_function=embedding_wrapper(embeddings))
+        col = self.client.get_collection(name=collection)
         col.delete(ids=[id])
 
     async def drop(self, collection: str):

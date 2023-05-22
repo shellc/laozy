@@ -10,7 +10,14 @@ const entries = require('react-app-rewire-multiple-entry')([
     {
         entry: 'src/laozy/laozy.js',
         template: 'public/laozy.html',
-        outPath: '/laozy.html'
+        outPath: '/laozy.html',
+        library: 'laozy'
+    },
+    {
+        entry: 'src/wpa/wpa.js',
+        template: 'public/wpa.html',
+        outPath: '/wap.html',
+        library: 'wpa'
     },
     {
         entry: 'src/index.js',

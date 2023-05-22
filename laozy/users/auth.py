@@ -133,14 +133,14 @@ async def create_token(credential: Union[Credential, None] = None):
     err = HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     if credential:
-        username = None
+        user = None
 
         # Validate token
         if credential.token:
             token = await tokens.get(credential.token)
             if not token or token.expires_at > int(time.time()):
                 raise err
-            username = token.username
+            user = await users.get(token.userid)
         else:
             username = credential.username
             # Validate username and password
@@ -150,10 +150,11 @@ async def create_token(credential: Union[Credential, None] = None):
             if captcha_sign != credential.captcha_signature:
                 raise err
 
-        if not username:
-            raise err
+            if not username:
+                raise err
 
-        user = await users.getbyusername(username)
+            user = await users.getbyusername(username)
+        
         if user:
             password = utils.password(user.salt, credential.password)
             if user.password == password:
@@ -189,7 +190,7 @@ class BasicAuthBackend(AuthenticationBackend):
             auth = request.headers["Authorization"]
 
             scheme, credentials = auth.split()
-            if scheme.lower() == 'Bearer':
+            if scheme.lower() == 'bearer':
                 token = credentials
         else:
             token = request.cookies.get('token')

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom/client';
 
 import { useState } from 'react'
 
@@ -238,3 +239,14 @@ const MessageHistory = (props) => {
         </div>
     );
 }
+
+const createChat = (elementId, connector_id, height) => {
+    const root = ReactDOM.createRoot(document.getElementById(elementId));
+    root.render(
+        <React.StrictMode>
+            <Chat connector_id={connector_id} height={height} />
+        </React.StrictMode>
+    );
+}
+
+export default { createChat };

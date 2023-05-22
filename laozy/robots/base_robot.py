@@ -80,7 +80,7 @@ class ChatRobot(Robot):
                         knowledge_prompt = t['template']
 
                     prompts.append(
-                        SystemMessagePromptTemplate.from_template("%s\n Context in triple quotes:'''{__laozy_context}'''" % knowledge_prompt))
+                        SystemMessagePromptTemplate.from_template("%s\n {__laozy_context}" % knowledge_prompt))
                     self.knowledge_enabled = True
                 else:
                     log.warn("Unknow role in prompt template: %s" % t['role'])

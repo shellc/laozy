@@ -1,33 +1,22 @@
-<!DOCTYPE>
-<html data-bs-theme="light">
+{% extends 'basic.html' %}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Account</title>
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/fontawesome/css/all.min.css" rel="stylesheet">
-    <link href="/static/css/default.css" rel="stylesheet">
-    <script defer src="/static/js/main.laozy-097316e3e68ec15fb796.js"></script>
-</head>
+{% block title %}
+{% if 'register' in request.query_params %}
+Sign up
+{% else %}
+Sign in
+{% endif %}
+{% endblock title %}
 
-<body>
-
-    <body>
-        <noscript>You need to enable JavaScript to run this app.</noscript>
-        <div class="container col-9 col-lg-4 mt-5">
-            <div id="account"></div>
-        </div>
-    </body>
-    <script defer>
-        window.onload = function () {
-            var default_view = "{{'register' in request.query_params}}" === 'True' ? 'register': 'login';
-            var invitation_required = "{{invitation_required}}" === 'True';
-            laozy.account.createAccountComponent('account', default_view=default_view,  invitation_required = invitation_required, next = "{{request.query_params['next']}}");
-        }
-    </script>
-</body>
-
-</html>
+{% block content %}
+<div class="container col-9 col-lg-4 mt-5">
+    <div id="account"></div>
+</div>
+<script defer>
+    window.onload = function () {
+        var default_view = "{{'register' in request.query_params}}" === 'True' ? 'register' : 'login';
+        var invitation_required = "{{invitation_required}}" === 'True';
+        laozy.account.createAccountComponent('account', default_view = default_view, invitation_required = invitation_required, next = "{{request.query_params['next']}}");
+    }
+</script>
+{% endblock content %}

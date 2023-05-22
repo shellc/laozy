@@ -45,6 +45,9 @@ routes = [
     Mount('/api', app=api.entry, name='api'),
 ]
 
+from . import apps
+routes.extend(apps.routes)
+
 # Middlewares
 middleware = [
     Middleware(AuthenticationMiddleware, backend=auth.BasicAuthBackend())

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat</title>
+  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/fontawesome/css/all.min.css" rel="stylesheet">
+  <link href="/static/css/default.css" rel="stylesheet">
+
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+</body>
+<script defer>
+  window.onload = function () {
+    laozy.chat.createChat('root', connector_id='gpt-3.5-turbo');
+  }
+</script>
+</html>

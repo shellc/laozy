@@ -3,5 +3,5 @@ import developer from './laozy/laozy'
 
 export default {
     account,
-    developer
+    developer,
 }

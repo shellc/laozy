@@ -1,13 +1,25 @@
 from typing import Union, Dict, List
 import chromadb
 from chromadb.config import Settings
+from chromadb.api.types import Documents, EmbeddingFunction, Embeddings as chromadb_Embeddings
 
 from laozy.knowledge.base_knowledge_base import Knowlege
 
-from .base_knowledge_base import KnowledgeBase
+from .base_knowledge_base import KnowledgeBase, Embeddings
 from ..utils import uuid
 
 from ..logging import log
+
+def embedding_wrapper(embeddings: Embeddings):
+    class WrapperedEmbeddingFunction(EmbeddingFunction):
+        def __call__(self, texts: Documents) -> chromadb_Embeddings:
+            ret = []
+            for d in texts:
+                ret.append(embeddings.embed(d))
+
+            return ret
+        
+    return WrapperedEmbeddingFunction()
 
 class ChromaKnowledgeBase(KnowledgeBase):
     def __init__(self, persist_dir: str) -> None:
@@ -18,8 +30,11 @@ class ChromaKnowledgeBase(KnowledgeBase):
             persist_directory=persist_dir
         ))
 
-    async def save(self, collection: str, knowledges: List[Knowlege]):
-        col = self.client.get_or_create_collection(name=collection)
+    async def create(self, collection: str, embeddings: Embeddings = None):
+        self.client.create_collection(name=collection, embedding_function=embedding_wrapper(embeddings))
+
+    async def save(self, collection: str, knowledges: List[Knowlege], embeddings: Embeddings = None):
+        col = self.client.get_or_create_collection(name=collection, embedding_function=embedding_wrapper(embeddings))
         documents = []
         ids = []
         metadatas = []
@@ -37,18 +52,21 @@ class ChromaKnowledgeBase(KnowledgeBase):
 
         col.add(**req)
 
-    async def retrieve(self, collection: str, content: str, metadata: Union[Dict, None] = None, topk=10):
-        col = self.client.get_or_create_collection(name=collection)
+    async def retrieve(self, collection: str, content: str, metadata: Union[Dict, None] = None, topk=10, embeddings: Embeddings = None):
+        col = self.client.get_collection(name=collection, embedding_function=embedding_wrapper(embeddings))
+        if len(content) < 1:
+            content = ' '
         req = {
             'query_texts': [content],
             'n_results': topk
         }
+
         if metadata:
             req['where'] = metadata
 
         result = None
         try:
-            result = await col.query(**req)
+            result = col.query(**req)
         except chromadb.errors.NotEnoughElementsException as e:
             req['n_results'] = col.count()
             if req['n_results'] > 0:
@@ -71,5 +89,8 @@ class ChromaKnowledgeBase(KnowledgeBase):
         return ret
     
     async def delete(self, collection: str, id: str):
-        col = self.client.get_or_create_collection(name=collection)
+        col = self.client.get_collection(name=collection, embedding_function=embedding_wrapper(embeddings))
         col.delete(ids=[id])
+
+    async def drop(self, collection: str):
+        return self.client.delete_collection(collection)

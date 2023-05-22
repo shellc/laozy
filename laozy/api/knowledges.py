@@ -6,8 +6,10 @@ from pydantic import BaseModel
 
 from .entry import entry
 from ..db import knowledges
-from ..knowledge import Knowlege, knowledge_base
+from ..knowledge import Knowlege, knowledge_base, Embeddings, OpenAIEmbeddings
 from ..utils import uuid
+
+embeddings = OpenAIEmbeddings()
 
 
 @entry.get('/knowledges', tags=['Knowledge Base'])
@@ -30,6 +32,7 @@ async def create_knowledge_base(k: KnowledgeModel, request: Request):
         'owner': request.user.userid,
         'created_time': int(time.time())
     }
+    await knowledge_base.create(r['id'])
     await knowledges.create(**r)
     return r
 
@@ -52,13 +55,14 @@ async def modify_knowledge_base(id: str, k: KnowledgeModel, request: Request):
 @entry.delete('/knowledges/{id}', status_code=204, tags=['Knowledge Base'])
 @requires(['authenticated'])
 async def remove_knowledge_base(id: str, request: Request):
+    await knowledge_base.drop(id)
     await knowledges.delete(id)
 
 
 @entry.post('/knowledges/{knowledge_id}', status_code=201, tags=['Knowledge Base'])
 @requires(['authenticated'])
 async def save_knowledge(knowledge_id: str, knowledges: List[Knowlege], request: Request):
-    await knowledge_base.save(collection=knowledge_id, knowledges=knowledges)
+    await knowledge_base.save(collection=knowledge_id, knowledges=knowledges, embeddings=embeddings)
 
 
 @entry.get('/knowledges/{knowledge_id}', status_code=200, tags=['Knowledge Base'])
@@ -69,9 +73,10 @@ async def retrieve_knowledges(knowledge_id: str, content: Union[str, None] = Non
     metadata = {}
     if tag:
         metadata['tag'] = tag
-    return await knowledge_base.retrieve(collection=knowledge_id, content=content, metadata=metadata, topk=50)
+    return await knowledge_base.retrieve(collection=knowledge_id, content=content, metadata=metadata, topk=50, embeddings=embeddings)
+
 
 @entry.delete('/knowledges/{knowledge_id}/{item_id}', status_code=204, tags=['Knowledge Base'])
 @requires(['authenticated'])
-async def delete_knowlege(knowledge_id: str, item_id:str, request: Request):
+async def delete_knowlege(knowledge_id: str, item_id: str, request: Request):
     await knowledge_base.delete(collection=knowledge_id, id=item_id)

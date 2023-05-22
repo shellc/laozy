@@ -134,8 +134,8 @@ const KnowledgeManager = (props) => {
         }).then(r => {
             if (r.status >= 200 && r.status < 400) {
                 openMessage('success', 'Success.');
-                retrieve();
                 form.resetFields();
+                retrieve();
                 return r.json();
             } else {
                 openMessage('error', 'Error.')

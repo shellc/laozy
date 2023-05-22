@@ -1,5 +1,6 @@
 import os
-from .base_knowledge_base import Knowlege
+from .base_knowledge_base import Knowlege, Embeddings
+from .openai_embeddings import OpenAIEmbeddings
 from .chroma_knowledge_base import ChromaKnowledgeBase
 
 from .. import settings

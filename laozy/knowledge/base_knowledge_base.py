@@ -10,7 +10,7 @@ class Knowlege(BaseModel):
 
 
 class KnowledgeBase:
-    async def save(self, collection: str, k: List[Knowlege]):
+    async def save(self, collection: str, knowledges: List[Knowlege]):
         pass
 
     async def retrieve(self, collection: str, content: str, metadata: Union[Dict, None] = None):

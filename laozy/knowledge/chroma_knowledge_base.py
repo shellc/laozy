@@ -35,7 +35,7 @@ class ChromaKnowledgeBase(KnowledgeBase):
             'metadatas': metadatas
         }
 
-        await col.add(**req)
+        col.add(**req)
 
     async def retrieve(self, collection: str, content: str, metadata: Union[Dict, None] = None, topk=10):
         col = self.client.get_or_create_collection(name=collection)
@@ -72,4 +72,4 @@ class ChromaKnowledgeBase(KnowledgeBase):
     
     async def delete(self, collection: str, id: str):
         col = self.client.get_or_create_collection(name=collection)
-        await col.delete(ids=[id])
+        col.delete(ids=[id])

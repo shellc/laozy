@@ -58,6 +58,13 @@ async def remove_knowledge_base(id: str, request: Request):
     await knowledge_base.drop(id)
     await knowledges.delete(id)
 
+class EmbedingRequest(BaseModel):
+    content: str
+
+@entry.post('/knowledges/embeddings', status_code=200, tags=['Knowledge Base'])
+@requires(['authenticated'])
+async def embedding(er: EmbedingRequest, request: Request):
+    return embeddings.embed(er.content)
 
 @entry.post('/knowledges/{knowledge_id}', status_code=201, tags=['Knowledge Base'])
 @requires(['authenticated'])

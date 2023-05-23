@@ -177,7 +177,7 @@ const PromptTemplateEditor = (props) => {
                                             },
                                             {
                                                 label: 'Knowledges',
-                                                value: 'knowlege'
+                                                value: 'knowledge'
                                             }
                                         ]}
                                         style={{ width: '150px' }}

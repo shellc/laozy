@@ -38,16 +38,19 @@ class ChromaKnowledgeBase(KnowledgeBase):
         documents = []
         ids = []
         metadatas = []
+        embds = []
 
         for k in knowledges:
             documents.append(k.content)
             ids.append(k.id if k.id else uuid())
             metadatas.append(k.metadata if k.metadata else {})
+            embds.append(k.embeddings if k.embeddings else [])
 
         req = {
             'documents': documents,
             'ids': ids,
-            'metadatas': metadatas
+            'metadatas': metadatas,
+            'embeddings': embds
         }
 
         col.add(**req)

@@ -29,14 +29,14 @@ class OpenAIRobot(ChatRobot):
         super().__init__(prompt_template, variables, values, knowledge_base_id)
 
     async def generate(self, msg: Message):
-        memory = await self.load_memory(current_msg=msg, limit=5)
+        memory = await self.load_memory(current_msg=msg, limit=10)
 
         chain = LLMChain(llm=llm, memory=memory, prompt=self.prompt)
 
         varialbe_values = self.varialbe_values.copy()
         varialbe_values['prompt'] = msg.content
 
-        knowledge_query = self.plain_memory(memory=memory)
+        knowledge_query = self.plain_memory(memory=memory) + '\n' + msg.content
         knowledge_ctx = await self.load_knowledges(query_text=knowledge_query, limit=2, max_length=2000)
         varialbe_values.update(knowledge_ctx)
 

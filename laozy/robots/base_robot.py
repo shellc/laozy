@@ -1,3 +1,4 @@
+import json
 from ..message import Message
 
 from langchain.memory import ConversationBufferMemory
@@ -40,9 +41,10 @@ class Robot():
 
     def plain_memory(self, memory):
         messages = []
-        for m in memory.chat_memory.messages:
-            messages.append(m.content)
-        return '\n'.join(messages)
+        if memory and memory.chat_memory:
+            for m in memory.chat_memory.messages:
+                messages.append(m.content[:50])
+        return '\n'.join(messages[-2:])
 
 
 class ChatRobot(Robot):
@@ -92,7 +94,7 @@ class ChatRobot(Robot):
 
         self.varialbe_values = values
 
-    async def load_memory(self, current_msg: Message, limit=5):
+    async def load_memory(self, current_msg: Message, limit=10):
         memory = None
 
         if self.history_enabled:
@@ -111,13 +113,13 @@ class ChatRobot(Robot):
                     if not h.content:
                         continue
                     if h.direction == 0:
-                        memory.chat_memory.add_user_message(h.content[:500])
+                        memory.chat_memory.add_user_message(h.content)
                     else:
-                        memory.chat_memory.add_ai_message(h.content[:500])
+                        memory.chat_memory.add_ai_message(h.content)
 
         return memory
 
-    async def load_knowledges(self, query_text: str, limit=3, max_length=2000):
+    async def load_knowledges(self, query_text: str, limit=3, max_length=1000):
         context = {}
         if self.knowledge_enabled:
             ks = await knowledge_base.retrieve(
@@ -132,5 +134,6 @@ class ChatRobot(Robot):
 
             ctx_str = '\n'.join(contents)
             context = {'__laozy_context': ctx_str[:max_length]}
-
+            
+            log.info('QUERY: %s, CONTEXT: %s' % (query_text.replace('\n', ' '), ctx_str[:50]))
         return context

@@ -11,6 +11,7 @@ class Knowlege(BaseModel):
     content: str
     metadata: Union[Dict, None] = None
     distance: Union[float, None] = None
+    embeddings: List[float] = None
 
 
 class KnowledgeBase:

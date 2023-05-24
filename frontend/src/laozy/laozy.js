@@ -15,6 +15,7 @@ import { ChannelListAndEditView } from './channels.js';
 import { RouteListAndEditView } from './routes.js';
 import { KnowledgeListAndEditView } from './knowledges.js';
 import { Dashboard } from './dashboard.js';
+import { TokenList } from './tokens.js'
 const { Sider } = Layout
 
 const LaozyApp = () => {
@@ -40,6 +41,7 @@ const LaozyApp = () => {
             case 'channels': setContent(<ChannelListAndEditView />); break;
             case 'routes': setContent(<RouteListAndEditView />); break;
             case 'knowledges': setContent(<KnowledgeListAndEditView />); break;
+            case 'tokens': setContent(<TokenList />); break;
             default:
                 setContent(
                     <div className='p-5'>The feature has not been implemented yet..</div>
@@ -140,11 +142,18 @@ const LaozyApp = () => {
                                 },
                             ]
                         },
-                        /*{
-                            key: '8',
+                        {
+                            key: 'settings_group',
                             icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-gear"></i></span>,
                             label: 'Settings',
-                        },*/
+                            children: [
+                                {
+                                    key: 'tokens',
+                                    icon: <span className="ant-menu-item-icon"><i className="fa-solid fa-key"></i></span>,
+                                    label: 'Tokens',
+                                },
+                            ]
+                        },
                     ]}
                 />
             </Sider>

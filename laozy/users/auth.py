@@ -1,6 +1,6 @@
 import time
 import random
-from typing import Union
+from typing import Union, Optional
 from starlette.authentication import (
     AuthCredentials, AuthenticationBackend, AuthenticationError, SimpleUser
 )
@@ -125,6 +125,7 @@ class Credential(BaseModel):
     captcha: Union[str, None] = None
     captcha_signature: Union[str, None] = None
     token: Union[str, None] = None
+    expires_at: Optional[int] = None
 
 
 @api.entry.post('/users/tokens', tags=['User'])
@@ -138,7 +139,7 @@ async def create_token(credential: Union[Credential, None] = None):
         # Validate token
         if credential.token:
             token = await tokens.get(credential.token)
-            if not token or token.expires_at > int(time.time()):
+            if not token or token.expires_at < int(time.time()):
                 raise err
             user = await users.get(token.userid)
         else:
@@ -155,20 +156,22 @@ async def create_token(credential: Union[Credential, None] = None):
 
             user = await users.getbyusername(username)
         
-        if user:
-            password = utils.password(user.salt, credential.password)
-            if user.password == password:
-                token = uuid()
-                created = int(time.time())
-                expires_at = created + 7200
-                await tokens.create(id=token, userid=user.id, created_time=created, expires_at=expires_at)
-                return {
-                    "userid": user.id,
-                    "username": user.username,
-                    "token": token,
-                    "created": created,
-                    "expires_at": expires_at
-                }
+            if user:
+                password = utils.password(user.salt, credential.password)
+                if user.password != password:
+                    raise err
+        
+        token = uuid()
+        created = int(time.time())
+        expires_at = created + 7200 if not credential.expires_at else credential.expires_at
+        await tokens.create(id=token, userid=user.id, created_time=created, expires_at=expires_at)
+        return {
+            "userid": user.id,
+            "username": user.username,
+            "token": token,
+            "created": created,
+            "expires_at": expires_at
+        }
 
     raise err
 

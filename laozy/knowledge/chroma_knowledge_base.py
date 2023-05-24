@@ -11,6 +11,8 @@ from ..utils import uuid
 from ..logging import log
 
 def embedding_wrapper(embeddings: Embeddings):
+    if not embeddings:
+        return None
     class WrapperedEmbeddingFunction(EmbeddingFunction):
         def __call__(self, texts: Documents) -> chromadb_Embeddings:
             ret = []
@@ -44,14 +46,17 @@ class ChromaKnowledgeBase(KnowledgeBase):
             documents.append(k.content)
             ids.append(k.id if k.id else uuid())
             metadatas.append(k.metadata if k.metadata else {})
-            embds.append(k.embeddings if k.embeddings else [])
+            if k.embeddings:
+                embds.append(k.embeddings)
 
         req = {
             'documents': documents,
             'ids': ids,
             'metadatas': metadatas,
-            'embeddings': embds
         }
+
+        if len(embds) == len(knowledges):
+            req['embeddings']: embds
 
         col.add(**req)
 

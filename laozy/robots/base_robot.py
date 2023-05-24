@@ -14,9 +14,9 @@ from ..db import messages
 
 from ..logging import log
 
-from ..knowledge import knowledge_base, OpenAIEmbeddings
+from ..knowledge import knowledge_base, OpenAIEmbeddings, HuggingFaceEmbeddings
 
-embeddings = OpenAIEmbeddings()
+embeddings = HuggingFaceEmbeddings()#OpenAIEmbeddings()
 
 
 class Robot():
@@ -39,12 +39,12 @@ class Robot():
     async def load_knowledges(self, limit=3):
         pass
 
-    def plain_memory(self, memory):
+    def plain_memory(self, memory, limit=1):
         messages = []
         if memory and memory.chat_memory:
             for m in memory.chat_memory.messages:
-                messages.append(m.content[:50])
-        return '\n'.join(messages[-2:])
+                messages.append(m.content)
+        return '\n'.join(messages[-1:])
 
 
 class ChatRobot(Robot):
@@ -82,7 +82,7 @@ class ChatRobot(Robot):
                         knowledge_prompt = t['template']
 
                     prompts.append(
-                        SystemMessagePromptTemplate.from_template("%s\n {__laozy_context}" % knowledge_prompt))
+                        SystemMessagePromptTemplate.from_template("%s\n {laozy_knowledges}" % knowledge_prompt))
                     self.knowledge_enabled = True
                 else:
                     log.warn("Unknow role in prompt template: %s" % t['role'])
@@ -94,7 +94,7 @@ class ChatRobot(Robot):
 
         self.varialbe_values = values
 
-    async def load_memory(self, current_msg: Message, limit=10):
+    async def load_memory(self, current_msg: Message, limit=2):
         memory = None
 
         if self.history_enabled:
@@ -130,10 +130,10 @@ class ChatRobot(Robot):
             )
             contents = []
             for k in ks:
-                contents.append(k.content)
+                contents.append(k.content.replace('\n', ' '))
 
-            ctx_str = '\n'.join(contents)
-            context = {'__laozy_context': ctx_str[:max_length]}
+            ctx_str = ' '.join(contents)
+            context = {'laozy_knowledges': ctx_str[:max_length]}
             
-            log.info('QUERY: %s, CONTEXT: %s' % (query_text.replace('\n', ' '), ctx_str[:50]))
+            #log.info('QUERY: %s, CONTEXT: %s' % (query_text.replace('\n', ' '), ctx_str[:50]))
         return context

@@ -6,10 +6,10 @@ from pydantic import BaseModel
 
 from .entry import entry
 from ..db import knowledges
-from ..knowledge import Knowlege, knowledge_base, Embeddings, OpenAIEmbeddings
+from ..knowledge import Knowlege, knowledge_base, Embeddings, OpenAIEmbeddings, HuggingFaceEmbeddings
 from ..utils import uuid
 
-embeddings = OpenAIEmbeddings()
+embeddings = HuggingFaceEmbeddings()#OpenAIEmbeddings()
 
 
 @entry.get('/knowledges', tags=['Knowledge Base'])

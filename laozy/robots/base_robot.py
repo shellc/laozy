@@ -24,16 +24,24 @@ class Robot():
                  prompt_template: dict = None,
                  variables: list = None,
                  values: dict = None,
-                 knowledge_base_id: str = None) -> None:
+                 knowledge_base_id: str = None,
+                 hisotry_limit:int = -1,
+                 knowledge_limit:int = -1,
+                 knowledge_query_limit:int = -1,
+                 knowledge_max_length:int = -1) -> None:
         self.prompt_template = prompt_template
         self.variables = variables
         self.values = values
         self.knowledge_base_id = knowledge_base_id
+        self.history_limit = hisotry_limit
+        self.knowledge_limit = knowledge_limit
+        self.knowledge_query_limit = knowledge_query_limit
+        self.knowledge_max_length = knowledge_max_length
 
     async def generate(msg: Message):
         pass
 
-    async def load_memory(self, limit=5):
+    async def load_memory(self, limit=4):
         pass
 
     async def load_knowledges(self, limit=3):
@@ -44,7 +52,7 @@ class Robot():
         if memory and memory.chat_memory:
             for m in memory.chat_memory.messages:
                 messages.append(m.content)
-        return '\n'.join(messages[-1:])
+        return '\n'.join(messages[-1*limit:])
 
 
 class ChatRobot(Robot):
@@ -52,8 +60,19 @@ class ChatRobot(Robot):
                  prompt_template: dict = None,
                  variables: list = None,
                  values: dict = None,
-                 knowledge_base_id: str = None) -> None:
-        super().__init__(prompt_template, variables, values, knowledge_base_id)
+                 knowledge_base_id: str = None,
+                 hisotry_limit:int = -1,
+                 knowledge_limit:int = -1,
+                 knowledge_query_limit:int = -1,
+                 knowledge_max_length:int = -1) -> None:
+        super().__init__(prompt_template, 
+                         variables, 
+                         values, 
+                         knowledge_base_id,
+                         hisotry_limit,
+                         knowledge_limit,
+                         knowledge_query_limit,
+                         knowledge_max_length)
 
         self.history_enabled = False
         self.knowledge_enabled = False
@@ -94,7 +113,7 @@ class ChatRobot(Robot):
 
         self.varialbe_values = values
 
-    async def load_memory(self, current_msg: Message, limit=2):
+    async def load_memory(self, current_msg: Message, limit=4):
         memory = None
 
         if self.history_enabled:

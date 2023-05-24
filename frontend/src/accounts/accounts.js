@@ -41,6 +41,7 @@ const autoRefreshToken = () => {
             Cookies.set('created', now);
             Cookies.set('expires_at', now + (data.expires_at - data.created));
         }).catch(e => {
+            Cookies.remove('token');
             window.location.href = '/accounts/login?next=' + window.location.href;
         });
     }

@@ -1,5 +1,5 @@
 import time
-from typing import Union
+from typing import Union, Optional
 from starlette.authentication import requires
 from fastapi import Request, HTTPException
 from pydantic import BaseModel
@@ -24,20 +24,20 @@ class RobotModel(BaseModel):
     prompt_template_id:str
     variables: str
     knowledge_base_id: Union[str, None] = None
+    hisotry_limit: Optional[int] = -1
+    knowledge_limit: Optional[int] = -1
+    knowledge_query_limit: Optional[int] = -1
+    knowledge_max_length: Optional[int] = -1
+    message_hook: Optional[str] = None
 
 @entry.post('/robots', status_code=201, tags=['Robot'])
 @requires(['authenticated'])
 async def create_robot(robot: RobotModel, request: Request):
-    r = {
-        'id': uuid(),
-        'name': robot.name,
-        'implement': robot.implement,
-        'prompt_template_id': robot.prompt_template_id,
-        'variables': robot.variables,
-        'knowledge_base_id': robot.knowledge_base_id,
-        'owner': request.user.userid,
-        'created_time': int(time.time())
-    }
+    r = robot.dict()
+    r['id'] = uuid()
+    r['created_time'] = int(time.time())
+    r['owner'] = request.user.userid
+    
     await robots.create(**r)
     return r
 
@@ -48,13 +48,8 @@ async def modify_robot(id:str, robot: RobotModel, request: Request):
     if not r:
         raise HTTPException(404, "Not found.")
     
-    r2u = {
-        'name': robot.name,
-        'implement': robot.implement,
-        'prompt_template_id': robot.prompt_template_id,
-        'variables': robot.variables,
-        'knowledge_base_id': robot.knowledge_base_id
-    }
+    r2u = robot.dict()
+    
     await robots.update(id, **r2u)
     r2u['id'] = r.id
     return r2u

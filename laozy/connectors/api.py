@@ -1,7 +1,7 @@
 import logging
 import asyncio
 import json
-from typing import Union
+from typing import Optional
 from pydantic import BaseModel
 from fastapi import Request, HTTPException, status
 from fastapi.responses import Response, StreamingResponse
@@ -27,29 +27,39 @@ __buildin_connectors['web'] = web_connector
 
 class WebMessage(BaseModel):
     connector_id: str
+    connector_userid: Optional[str] = None
     content: str
 
 
 @entry.get('/connectors/messages', tags=['Connector'])
 @requires('authenticated')
-async def get_history(connector_id: str, request: Request):
+async def get_history(connector_id: str, connector_userid: Optional[str] = None, limit: Optional[int] = 20, request: Request = None):
     """
     Get conversation history from the connector.
     """
-    userid = request.user.userid
+
+    if not connector_userid:
+        connector_userid = request.user.userid
+
+    if limit < 0 or limit > 100:
+        limit = 20
+
     route = await channel_routes.get_route('web', connector_id)
     if not route:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-    histories = await messages.get_history('web', connector_id, userid, route.channel_id, 20)
+    histories = await messages.get_history('web', connector_id, connector_userid, route.channel_id, limit)
     return histories
 
 
 @entry.post('/connectors/messages', tags=['Connector'])
 @requires('authenticated')
 async def send_message(wmsg: WebMessage, sse: bool = False, request: Request = None):
-    userid = request.user.userid
+    connector_userid = wmsg.connector_userid
+    if not connector_userid:
+        connector_userid = request.user.userid
+
     msg = Message(connector_id=wmsg.connector_id,
-                  content=wmsg.content, connector_userid=userid)
+                  content=wmsg.content, connector_userid=connector_userid)
 
     log.info("Received message: %s" % msg.id)
     msg.streaming = True

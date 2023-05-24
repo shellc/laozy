@@ -43,5 +43,7 @@ entry = FastAPI(
     contact={
         'name': 'shellc',
         'url': 'https://github.com/shellc/laozy'
-    }
+    },
+    docs_url=None,
+    redoc_url='/docs'
 )

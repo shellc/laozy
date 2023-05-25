@@ -24,7 +24,7 @@ class RobotModel(BaseModel):
     prompt_template_id:str
     variables: str
     knowledge_base_id: Union[str, None] = None
-    hisotry_limit: Optional[int] = -1
+    history_limit: Optional[int] = -1
     knowledge_limit: Optional[int] = -1
     knowledge_query_limit: Optional[int] = -1
     knowledge_max_length: Optional[int] = -1

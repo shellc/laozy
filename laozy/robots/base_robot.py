@@ -31,10 +31,10 @@ class Robot():
         self.variables = variables
         self.values = values
         self.knowledge_base_id = knowledge_base_id
-        self.history_limit = hisotry_limit
-        self.knowledge_limit = knowledge_limit
-        self.knowledge_query_limit = knowledge_query_limit
-        self.knowledge_max_length = knowledge_max_length
+        self.history_limit = hisotry_limit if hisotry_limit else -1
+        self.knowledge_limit = knowledge_limit if knowledge_limit else -1
+        self.knowledge_query_limit = knowledge_query_limit if knowledge_query_limit else -1
+        self.knowledge_max_length = knowledge_max_length if knowledge_max_length else -1
 
     async def generate(msg: Message):
         pass

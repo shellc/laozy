@@ -56,7 +56,7 @@ async def process(msg: Message):
         try:
             robot_generated = await robot.generate(msg)
         except Exception as e:
-            # log.error("Robot generate failed:", exc_info=e)
+            log.error("Robot generate failed:", exc_info=e)
             error_msg = "Robot generate failed: %s" % str(e)
 
         reply = msg.copy()

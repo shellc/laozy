@@ -20,7 +20,7 @@ robots = RobotModel(
     sqlalchemy.Column('prompt_template_id', sqlalchemy.String(50)),
     sqlalchemy.Column('variables', sqlalchemy.String(4096)),
     sqlalchemy.Column('knowledge_base_id', sqlalchemy.String(50)),
-    sqlalchemy.Column('hisotry_limit', sqlalchemy.Integer),
+    sqlalchemy.Column('history_limit', sqlalchemy.Integer),
     sqlalchemy.Column('knowledge_limit', sqlalchemy.Integer),
     sqlalchemy.Column('knowledge_query_limit', sqlalchemy.Integer),
     sqlalchemy.Column('knowledge_max_length', sqlalchemy.Integer),

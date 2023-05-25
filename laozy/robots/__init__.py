@@ -28,7 +28,16 @@ async def get_robot(id: str):
 
         impl = r.implement
         if 'openai' == impl:
-            robot = OpenAIRobot(prompt_template, variables, values, knowledge_base_id)
+            robot = OpenAIRobot(
+                prompt_template,
+                variables,
+                values,
+                knowledge_base_id,
+                r.history_limit,
+                r.knowledge_limit,
+                r.knowledge_query_limit,
+                r.knowledge_max_length
+            )
         else:
             log.error("Robot not implemented: %s" % impl)
     return robot

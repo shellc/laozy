@@ -90,7 +90,17 @@ const RobotEditor = (props) => {
 
         let vars = {}
         for (let k in values) {
-            if (k !== 'name' && k !== 'prompt_template_id' && k !== 'implement' && k !== 'knowledge_base_id' && values[k]) {
+            if (k !== 'name'
+                && k !== 'prompt_template_id'
+                && k !== 'implement'
+                && k !== 'knowledge_base_id'
+                && k !== 'history_limit'
+                && k !== 'knowledge_query_limit'
+                && k !== 'knowledge_limit'
+                && k !== 'knowledge_max_length'
+                && k !== 'message_hook'
+                && values[k]
+            ) {
                 vars[k] = values[k];
             }
         }

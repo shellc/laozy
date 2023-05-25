@@ -61,7 +61,7 @@ class OpenAIRobot(ChatRobot):
         knowledge_ctx = await self.load_knowledges(query_text=knowledge_query, limit=knowledge_limit, max_length=knowledge_max_len)
         varialbe_values.update(knowledge_ctx)
 
-        # log.info([self.prompt, varialbe_values])
+        log.info([varialbe_values])
 
         callbacks = []
         if msg.streaming:

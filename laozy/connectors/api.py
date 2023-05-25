@@ -1,13 +1,13 @@
 import logging
 import asyncio
 import json
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 from fastapi import Request, HTTPException, status
 from fastapi.responses import Response, StreamingResponse
 from starlette.authentication import requires
 
-from ..db import channel_routes, messages
+from ..db import channel_routes, messages, MessagePdModel
 from ..api import entry
 
 from .wx import WXKFConnector
@@ -33,7 +33,7 @@ class WebMessage(BaseModel):
 
 @entry.get('/connectors/messages', tags=['Connector'])
 @requires('authenticated')
-async def get_history(connector_id: str, connector_userid: Optional[str] = None, limit: Optional[int] = 20, request: Request = None):
+async def get_history(connector_id: str, request: Request, connector_userid: Optional[str] = None, limit: Optional[int] = 20) -> List[MessagePdModel]:
     """
     Get conversation history from the connector.
     """
@@ -53,7 +53,7 @@ async def get_history(connector_id: str, connector_userid: Optional[str] = None,
 
 @entry.post('/connectors/messages', tags=['Connector'])
 @requires('authenticated')
-async def send_message(wmsg: WebMessage, sse: bool = False, request: Request = None):
+async def send_message(wmsg: WebMessage, request: Request, sse: bool = False):
     connector_userid = wmsg.connector_userid
     if not connector_userid:
         connector_userid = request.user.userid

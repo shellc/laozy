@@ -1,3 +1,4 @@
+from . import apps
 from .logging import log
 import contextlib
 
@@ -5,6 +6,7 @@ from starlette.applications import Starlette
 from starlette.routing import Route, Mount
 from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
+from starlette.authentication import requires
 from starlette.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
 
@@ -37,15 +39,40 @@ async def lifespan(app):
 
 # Routes
 routes = [
-    Route('/', endpoint=lambda _: RedirectResponse('/developer')),
-    Route('/accounts/login', endpoint=template.render('account.html',
-          context={'invitation_required': settings.get('INVITATION_REQUIRED', False)})),
-    Route('/developer', endpoint=template.render('developer.html')),
-    Mount('/static', StaticFiles(directory='static'), name='static'),
-    Mount('/api', app=api.entry, name='api'),
+    Route(
+        '/',
+        name="home",
+        endpoint=lambda _: RedirectResponse('/developer')
+    ),
+    Route(
+        '/accounts/login',
+        name="login",
+        endpoint=template.render(
+            'account.html',
+            context={
+                'invitation_required': settings.get('INVITATION_REQUIRED', False)
+            }
+        )
+    ),
+    Route(
+        '/developer',
+        name="developer",
+        endpoint=requires(
+            scopes=['developer'],
+            redirect='login')(template.render('developer.html'))
+    ),
+    Mount(
+        '/static',
+        name='static',
+        app=StaticFiles(directory='static')
+    ),
+    Mount(
+        '/api',
+        name='api',
+        app=api.entry,
+    ),
 ]
 
-from . import apps
 routes.extend(apps.routes)
 
 # Middlewares

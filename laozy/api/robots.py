@@ -1,21 +1,21 @@
 import time
-from typing import Union, Optional
+from typing import Union, Optional, List
 from starlette.authentication import requires
 from fastapi import Request, HTTPException
 from pydantic import BaseModel
 
 from .entry import entry
-from ..db import robots
+from ..db import robots, RobotPdModel
 from ..utils import uuid
 
 @entry.get('/robots', tags=['Robot'])
 @requires(['authenticated'])
-async def list_robots(request: Request):
+async def list_robots(request: Request) -> List[RobotPdModel]:
     return await robots.list_by_owner(request.user.userid)
 
 @entry.get('/robots/{id}', tags=['Robot'])
 @requires(['authenticated'])
-async def get_robot(id:str, request: Request):
+async def get_robot(id:str, request: Request) -> RobotPdModel:
     return await robots.get(id)
 
 class RobotModel(BaseModel):
@@ -32,18 +32,18 @@ class RobotModel(BaseModel):
 
 @entry.post('/robots', status_code=201, tags=['Robot'])
 @requires(['authenticated'])
-async def create_robot(robot: RobotModel, request: Request):
+async def create_robot(robot: RobotModel, request: Request) -> RobotPdModel:
     r = robot.dict()
     r['id'] = uuid()
     r['created_time'] = int(time.time())
     r['owner'] = request.user.userid
     
     await robots.create(**r)
-    return r
+    return RobotPdModel(**r)
 
 @entry.put('/robots/{id}', status_code=201, tags=['Robot'])
 @requires(['authenticated'])
-async def modify_robot(id:str, robot: RobotModel, request: Request):
+async def modify_robot(id:str, robot: RobotModel, request: Request) -> RobotPdModel:
     r = await robots.get(id)
     if not r:
         raise HTTPException(404, "Not found.")
@@ -52,7 +52,7 @@ async def modify_robot(id:str, robot: RobotModel, request: Request):
     
     await robots.update(id, **r2u)
     r2u['id'] = r.id
-    return r2u
+    return RobotPdModel(**r2u)
 
 @entry.delete('/robots/{id}', status_code=204, tags=['Robot'])
 @requires(['authenticated'])

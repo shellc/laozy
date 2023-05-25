@@ -1,24 +1,24 @@
 import time
 import json
 import re
-from typing import Union
+from typing import List
 from pydantic import BaseModel
 from starlette.authentication import requires
 from fastapi import Request, HTTPException
 
 from .entry import entry
-from ..db import prompt_templates
+from ..db import prompt_templates, PromptTemplatesPdModel
 from ..utils import uuid
 
 
 @entry.get('/prompts/{id}', tags=['Prompt'])
 @requires(['authenticated'])
-async def get_prompt_template(id:str, request: Request):
+async def get_prompt_template(id:str, request: Request) -> PromptTemplatesPdModel:
     return await prompt_templates.get(id)
 
 @entry.get('/prompts', tags=['Prompt'])
 @requires(['authenticated'])
-async def list_prompt_templates(request: Request):
+async def list_prompt_templates(request: Request) -> List[PromptTemplatesPdModel]:
     return await prompt_templates.getbyowner(request.user.userid)
 
 
@@ -29,7 +29,7 @@ class PromptTemplateModel(BaseModel):
 
 @entry.post('/prompts', status_code=201, tags=['Prompt'])
 @requires(['authenticated'])
-async def create_prompt_template(template: PromptTemplateModel, request: Request):
+async def create_prompt_template(template: PromptTemplateModel, request: Request) -> PromptTemplatesPdModel:
     j = validate_template(template.template)
     variables = json.dumps(extract_variables(j), ensure_ascii=False)
 
@@ -42,22 +42,23 @@ async def create_prompt_template(template: PromptTemplateModel, request: Request
         'created_time': int(time.time())
     }
     await prompt_templates.create(**t)
-    return t
+    return PromptTemplatesPdModel(**t)
 
 
 @entry.put('/prompts/{id}', status_code=200, tags=['Prompt'])
 @requires(['authenticated'])
-async def modify_prompt_template(id: str, template: PromptTemplateModel, request: Request):
+async def modify_prompt_template(id: str, template: PromptTemplateModel, request: Request) -> PromptTemplatesPdModel:
     j = validate_template(template.template)
     variables = json.dumps(extract_variables(j), ensure_ascii=False)
 
     await prompt_templates.update(id, variables=variables, **template.dict())
-    return {
+    r = {
         'id': id,
         'name': template.name,
         'template': template.template,
         'variables': variables
     }
+    return PromptTemplatesPdModel(**r)
 
 
 def validate_template(template: str):

@@ -2,7 +2,7 @@ import databases
 import sqlalchemy
 
 from .db import Model
-from .db import metadata
+from .db import metadata, create_pydantic_model
 from .db import instance as db
 from ..utils import uuid
 
@@ -25,3 +25,5 @@ prompt_templates = PromptTemplatesModel(
     sqlalchemy.Column('owner', sqlalchemy.String(50), index=True),
     sqlalchemy.Column('created_time', sqlalchemy.Integer, index=True),
 )
+
+PromptTemplatesPdModel = create_pydantic_model(prompt_templates)

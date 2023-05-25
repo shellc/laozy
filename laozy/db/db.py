@@ -1,5 +1,8 @@
+from typing import Optional
 import databases
 import sqlalchemy
+from pydantic import BaseConfig, BaseModel, create_model
+
 from .. import settings
 
 # Database table definitions
@@ -54,3 +57,26 @@ class Model:
     async def list_by_owner(self, owner):
         q = self.table.select().where(self.c.owner == owner).order_by(self.c.created_time.desc())
         return await self.db.fetch_all(q)
+
+def create_pydantic_model(model: Model):
+    fields = {}
+    for c in model.table.columns:
+        pdtype = None
+        ptype = None
+        t = str(c.type)
+        if t.startswith('VARCHAR'):
+            ptype = str
+        elif t.startswith('INT'):
+            ptype = int
+        else:
+            raise ValueError('Type unsupported %s ' % c.type)
+        
+        if c.nullable:
+            pdtype = Optional[ptype]
+        else:
+            pdtype = ptype
+
+        fields[str(c.name)] = (pdtype, c.default)
+        
+    pydantic_model = create_model(__model_name=model.__class__.__name__, **fields)
+    return pydantic_model

@@ -23,5 +23,6 @@ users = UsersModel(
     sqlalchemy.Column('username', sqlalchemy.String(50), index=True),
     sqlalchemy.Column('salt', sqlalchemy.String(50)),
     sqlalchemy.Column('password', sqlalchemy.String(50)),
+    sqlalchemy.Column('roles', sqlalchemy.String(50)),
     sqlalchemy.Column('created_time', sqlalchemy.Integer),
 )

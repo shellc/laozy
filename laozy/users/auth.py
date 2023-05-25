@@ -1,6 +1,6 @@
 import time
 import random
-from typing import Union, Optional
+from typing import Union, Optional, List
 from starlette.authentication import (
     AuthCredentials, AuthenticationBackend, AuthenticationError, SimpleUser
 )
@@ -27,14 +27,14 @@ secrect_key = settings.get('SECRECT_KEY')
 
 
 @api.entry.get("/captcha", tags=['User'])
-async def genereate_captcha(signature: str = None):
+async def genereate_captcha(signature: str = None) -> StreamingResponse:
     """Generate a CAPTCHA
 
     A CAPTCHA is a test that is used to separate humans and machines. CAPTCHA stands for "Completely Automated Public Turing test to tell Computers and Humans Apart." It is normally an image test or a simple mathematics problem which a human can read or solve, but a computer cannot.
     -- From: [wikipedia](https://simple.wikipedia.org/wiki/CAPTCHA)
 
     @param  signature   The signature is used to generate a CAPTCHA, which is used to prevent replay attacks. It usually represents the part of the form data that needs to be protected.
-    
+
     @return image/png
     """
     chars = []
@@ -47,7 +47,7 @@ async def genereate_captcha(signature: str = None):
     to_sign = ''.join(chars)
     if signature:
         to_sign = to_sign + signature
-    #print(to_sign)
+    # print(to_sign)
     headers = {
         'Content-Type': 'image/png',
         'X-Captcha-Signature': utils.captcha_sign(secrect_key, to_sign)
@@ -71,7 +71,8 @@ async def create_user(register: RegisterModel):
 
     # Validate CAPTCHA
     data_sign = utils.sha256(register.username + register.password)
-    captcha_sign = utils.captcha_sign(secrect_key, register.captcha + data_sign)
+    captcha_sign = utils.captcha_sign(
+        secrect_key, register.captcha + data_sign)
     if captcha_sign != register.captcha_signature:
         # print(register.captcha, captcha_sign, register.captcha_signature)
         raise bad_request
@@ -108,14 +109,15 @@ async def create_user(register: RegisterModel):
 class UserModel(BaseModel):
     id: str
     username: str
+    roles: Optional[str] = None
 
 
 @api.entry.get('/users/{userid}', tags=['User'])
-async def get_user(userid: str):
+async def get_user(userid: str) -> UserModel:
     u = await users.get(userid)
     if not u:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return UserModel(id=u.id, username=u.username)
+    return UserModel(id=u.id, username=u.username, roles=u.roles)
 
 
 class Credential(BaseModel):
@@ -128,9 +130,17 @@ class Credential(BaseModel):
     expires_at: Optional[int] = None
 
 
+class CreateTokenResponse(BaseModel):
+    userid: str
+    username: str
+    token: str
+    created: int
+    expires_at: int
+
+
 @api.entry.post('/users/tokens', tags=['User'])
 # @requires('authenticated')
-async def create_token(credential: Union[Credential, None] = None):
+async def create_token(credential: Union[Credential, None] = None) -> CreateTokenResponse:
     err = HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     if credential:
@@ -146,8 +156,9 @@ async def create_token(credential: Union[Credential, None] = None):
             username = credential.username
             # Validate username and password
             data_sign = utils.sha256(username + credential.password)
-            #print(data_sign)
-            captcha_sign = utils.captcha_sign(secrect_key, credential.captcha + data_sign)
+            # print(data_sign)
+            captcha_sign = utils.captcha_sign(
+                secrect_key, credential.captcha + data_sign)
             if captcha_sign != credential.captcha_signature:
                 raise err
 
@@ -155,31 +166,34 @@ async def create_token(credential: Union[Credential, None] = None):
                 raise err
 
             user = await users.getbyusername(username)
-        
+
             if user:
                 password = utils.password(user.salt, credential.password)
                 if user.password != password:
                     raise err
-        
+
         token = uuid()
         created = int(time.time())
         expires_at = created + 7200 if not credential.expires_at else credential.expires_at
         await tokens.create(id=token, userid=user.id, created_time=created, expires_at=expires_at)
-        return {
-            "userid": user.id,
-            "username": user.username,
-            "token": token,
-            "created": created,
-            "expires_at": expires_at
-        }
+
+        resp = CreateTokenResponse(
+            userid=user.id,
+            username=user.username,
+            token=token,
+            created=created,
+            expires_at=expires_at
+        )
+        return resp
 
     raise err
 
 
 class AuthenticatedUser(SimpleUser):
-    def __init__(self, id: str, username: str = None) -> None:
+    def __init__(self, id: str, username: str = None, roles: List[str] = []) -> None:
         super().__init__(username)
         self.id = id
+        self.roles = roles
 
     @property
     def userid(self):
@@ -201,4 +215,14 @@ class BasicAuthBackend(AuthenticationBackend):
         if token:
             t = await tokens.get(token)
             if t and t.expires_at > int(time.time()):
-                return AuthCredentials(["authenticated"]), AuthenticatedUser(t.userid)
+                user = await users.get(t.userid)
+                roles = []
+                if user.roles:
+                    roles = user.roles.split(',')
+                auser = AuthenticatedUser(id=t.userid, roles=roles)
+
+                scopes = ["authenticated"]
+                scopes.extend(roles)
+                credentials = AuthCredentials(scopes=scopes)
+
+                return credentials, auser

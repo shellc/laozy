@@ -1,17 +1,18 @@
-from typing import Union, Dict, List
+from typing import Optional, Dict, List
 from pydantic import BaseModel
 
 
 class Embeddings:
-    def embed(self, s: str):
+    def embed(self, s: str) -> List[float]:
         pass
 
+
 class Knowlege(BaseModel):
-    id: Union[str, None] = None
+    id: Optional[str] = None
     content: str
-    metadata: Union[Dict, None] = None
-    distance: Union[float, None] = None
-    embeddings: List[float] = None
+    metadata: Optional[Dict] = None
+    distance: Optional[float] = None
+    embeddings: Optional[float] = None
 
 
 class KnowledgeBase:
@@ -21,7 +22,7 @@ class KnowledgeBase:
     async def save(self, collection: str, knowledges: List[Knowlege], embeddings: Embeddings = None):
         pass
 
-    async def retrieve(self, collection: str, content: str, metadata: Union[Dict, None] = None, embeddings: Embeddings = None):
+    async def retrieve(self, collection: str, content: Optional[str] = None, metadata: Optional[Dict] = None, embeddings: Embeddings = None):
         pass
 
     async def delete(self, collection: str, id: str):

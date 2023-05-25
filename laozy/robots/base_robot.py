@@ -14,9 +14,7 @@ from ..db import messages
 
 from ..logging import log
 
-from ..knowledge import knowledge_base, OpenAIEmbeddings, HuggingFaceEmbeddings
-
-embeddings = HuggingFaceEmbeddings()#OpenAIEmbeddings()
+from ..knowledge import knowledge_base, embeddings
 
 
 class Robot():
@@ -25,10 +23,10 @@ class Robot():
                  variables: list = None,
                  values: dict = None,
                  knowledge_base_id: str = None,
-                 hisotry_limit:int = -1,
-                 knowledge_limit:int = -1,
-                 knowledge_query_limit:int = -1,
-                 knowledge_max_length:int = -1) -> None:
+                 hisotry_limit: int = -1,
+                 knowledge_limit: int = -1,
+                 knowledge_query_limit: int = -1,
+                 knowledge_max_length: int = -1) -> None:
         self.prompt_template = prompt_template
         self.variables = variables
         self.values = values
@@ -61,13 +59,13 @@ class ChatRobot(Robot):
                  variables: list = None,
                  values: dict = None,
                  knowledge_base_id: str = None,
-                 hisotry_limit:int = -1,
-                 knowledge_limit:int = -1,
-                 knowledge_query_limit:int = -1,
-                 knowledge_max_length:int = -1) -> None:
-        super().__init__(prompt_template, 
-                         variables, 
-                         values, 
+                 hisotry_limit: int = -1,
+                 knowledge_limit: int = -1,
+                 knowledge_query_limit: int = -1,
+                 knowledge_max_length: int = -1) -> None:
+        super().__init__(prompt_template,
+                         variables,
+                         values,
                          knowledge_base_id,
                          hisotry_limit,
                          knowledge_limit,
@@ -153,6 +151,6 @@ class ChatRobot(Robot):
 
             ctx_str = ' '.join(contents)
             context = {'laozy_knowledges': ctx_str[:max_length]}
-            
-            #log.info('QUERY: %s, CONTEXT: %s' % (query_text.replace('\n', ' '), ctx_str[:50]))
+
+            # log.info('QUERY: %s, CONTEXT: %s' % (query_text.replace('\n', ' '), ctx_str[:50]))
         return context

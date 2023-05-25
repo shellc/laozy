@@ -1,15 +1,13 @@
 import time
-from typing import List, Union
+from typing import List, Optional
 from starlette.authentication import requires
 from fastapi import Request, HTTPException
 from pydantic import BaseModel
 
 from .entry import entry
 from ..db import knowledges, KnowledgePdModel
-from ..knowledge import Knowlege, knowledge_base, Embeddings, OpenAIEmbeddings, HuggingFaceEmbeddings
+from ..knowledge import Knowlege, knowledge_base, embeddings
 from ..utils import uuid
-
-embeddings = HuggingFaceEmbeddings()#OpenAIEmbeddings()
 
 
 @entry.get('/knowledges', tags=['Knowledge Base'])
@@ -58,13 +56,16 @@ async def remove_knowledge_base(id: str, request: Request):
     await knowledge_base.drop(id)
     await knowledges.delete(id)
 
+
 class EmbedingRequest(BaseModel):
     content: str
+
 
 @entry.post('/knowledges/embeddings', status_code=200, tags=['Knowledge Base'])
 @requires(['authenticated'])
 async def embedding(er: EmbedingRequest, request: Request) -> List[float]:
     return embeddings.embed(er.content)
+
 
 @entry.post('/knowledges/{knowledge_id}', status_code=201, tags=['Knowledge Base'])
 @requires(['authenticated'])
@@ -74,12 +75,12 @@ async def save_knowledge(knowledge_id: str, knowledges: List[Knowlege], request:
 
 @entry.get('/knowledges/{knowledge_id}', status_code=200, tags=['Knowledge Base'])
 @requires(['authenticated'])
-async def retrieve_knowledges(knowledge_id: str, 
-                              content: Union[str, None] = None, 
-                              tag: Union[str, None] = None, 
-                              request: Request = None) -> List[Knowlege]:
-    if not content:
-        content = ''
+async def retrieve_knowledges(knowledge_id: str,
+                              request: Request,
+                              content: Optional[str] = None,
+                              tag: Optional[str] = None
+                              ) -> List[Knowlege]:
+
     metadata = {}
     if tag:
         metadata['tag'] = tag

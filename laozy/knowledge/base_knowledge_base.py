@@ -12,7 +12,7 @@ class Knowlege(BaseModel):
     content: str
     metadata: Optional[Dict] = None
     distance: Optional[float] = None
-    embeddings: Optional[float] = None
+    embeddings: Optional[List[float]] = None
 
 
 class KnowledgeBase:

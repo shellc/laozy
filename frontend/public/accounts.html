@@ -24,7 +24,7 @@
   window.onload = function () {
     var default_view = "True" === 'True' ? 'register' : 'login';
     laozy.createAccountComponent('root', default_view = default_view, invitation_required = false,  next = "{{request.query_params['next']}}");
-    laozy.autoRefreshToken();
+    //laozy.autoRefreshToken();
   }
 </script>
 

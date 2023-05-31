@@ -133,7 +133,7 @@ const LoginForm = (props) => {
                     <input type="password" className="form-control ps-4" name="password" placeholder="Password" required onBlur={onChange}></input>
                 </div>
                 <div className="input-group mb-4">
-                    <input type="captcha" className="form-control" name="captcha" placeholder="CAPTCHA" required></input>
+                    <input type="captcha" className="form-control" name="captcha" placeholder="CAPTCHA" required onFocus={onChange}></input>
                     <span className='input-group-text p-0'><img alt="" src={captchaData} style={{ height: '30px' }} onClick={onChange} /></span>
                 </div>
                 <input type='hidden' name='captcha_signature' value={captchaSignature} />

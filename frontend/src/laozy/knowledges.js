@@ -150,7 +150,12 @@ const KnowledgeManager = (props) => {
         let values = form.getFieldsValue();
         let tag = values['tag'] ? values['tag'] : '';
         fetch(`/api/knowledges/${props.id}?content=${values['content'] ? encodeURI(values['content']) : ''}&tag=${tag}`)
-            .then(r => r.json())
+            .then(r => {
+                if (r.status === 200)
+                    return r.json()
+                else
+                    openMessage('error', 'Error.')
+            })
             .then(data => {
                 setData(data);
             })

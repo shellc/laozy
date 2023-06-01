@@ -7,7 +7,7 @@ class Embeddings:
         pass
 
 
-class Knowlege(BaseModel):
+class Knowledge(BaseModel):
     id: Optional[str] = None
     content: str
     metadata: Optional[Dict] = None
@@ -19,10 +19,10 @@ class KnowledgeBase:
     async def create(self, collection: str, embeddings: Embeddings = None):
         pass
 
-    async def save(self, collection: str, knowledges: List[Knowlege], embeddings: Embeddings = None):
+    async def save(self, collection: str, knowledges: List[Knowledge], embeddings: Embeddings = None):
         pass
 
-    async def retrieve(self, collection: str, content: Optional[str] = None, metadata: Optional[Dict] = None, embeddings: Embeddings = None):
+    async def retrieve(self, collection: str, content: Optional[str] = None, metadata: Optional[Dict] = None, topk=10, embeddings: Embeddings = None):
         pass
 
     async def delete(self, collection: str, id: str):

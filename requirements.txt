@@ -14,7 +14,8 @@ databases[aiosqlite]
 alembic
 langchain
 openai
-chromadb
+#chromadb
+#sqlite-vss
 
 # Wechat requirements
 pycryptodome

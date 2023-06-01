@@ -91,22 +91,30 @@ async def send_message(wmsg: WebMessage, request: Request, sse: bool = False):
 
 # WeChat Customer Service APIs
 
-__wxkf_token = settings.get('WXKF_TOKEN', '')
-__wxkf_encoding_aes_key = settings.get('WXKF_ENCODING_AES_KEY', '')
-__wxkf_compay_id = settings.get('WXKF_COMPANY_ID', '')
-__wxkf_secret = settings.get('WXKF_SECRET', '')
+wxkf_connector = None
 
-wxkf_connector = WXKFConnector(
-    __wxkf_token, __wxkf_encoding_aes_key, __wxkf_compay_id, __wxkf_secret)
+wxkf_enabled = settings.get_bool('WXKF_ENABLED')
+if wxkf_enabled:
+    __wxkf_token = settings.get('WXKF_TOKEN', '')
+    __wxkf_encoding_aes_key = settings.get('WXKF_ENCODING_AES_KEY', '')
+    __wxkf_compay_id = settings.get('WXKF_COMPANY_ID', '')
+    __wxkf_secret = settings.get('WXKF_SECRET', '')
+    wxkf_connector = WXKFConnector(
+        __wxkf_token, __wxkf_encoding_aes_key, __wxkf_compay_id, __wxkf_secret)
 
-__buildin_connectors['wxkf'] = wxkf_connector
+    __buildin_connectors['wxkf'] = wxkf_connector
 
+def check_wxkf_enabled():
+    if not wxkf_enabled:
+        raise HTTPException(status_code=503, detail='WeChat Customer Service is not enabled.')
 
 @entry.get('/connectors/wxkf/notifications', tags=['WeChat'])
 async def service_verify(msg_signature: str, timestamp: int, nonce: int, echostr: str, request: Request):
     """
     Provide a callback URL for WeChat customer service to verify our service.
     """
+
+    check_wxkf_enabled()
 
     reply_echostr = await wxkf_connector.verify(
         msg_signature, timestamp, nonce, echostr)
@@ -118,6 +126,8 @@ async def service_verify(msg_signature: str, timestamp: int, nonce: int, echostr
 
 @entry.post('/connectors/wxkf/notifications', tags=['WeChat'])
 async def message_notify(msg_signature: str, timestamp: int, nonce: int, request: Request):
+    check_wxkf_enabled()
+    
     """
     Provide a callback URL to receive notifications from WeChat customer service.
     """

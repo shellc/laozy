@@ -3,7 +3,7 @@ import chromadb
 from chromadb.config import Settings
 from chromadb.api.types import Documents, EmbeddingFunction, Embeddings as chromadb_Embeddings
 
-from laozy.knowledge.base_knowledge_base import Knowlege
+from laozy.knowledge.base_knowledge_base import Knowledge
 
 from .base_knowledge_base import KnowledgeBase, Embeddings
 from ..utils import uuid
@@ -39,7 +39,7 @@ class ChromaKnowledgeBase(KnowledgeBase):
         self.client.create_collection(
             name=collection, embedding_function=embedding_wrapper(embeddings))
 
-    async def save(self, collection: str, knowledges: List[Knowlege], embeddings: Embeddings = None):
+    async def save(self, collection: str, knowledges: List[Knowledge], embeddings: Embeddings = None):
         col = self.client.get_or_create_collection(
             name=collection, embedding_function=embedding_wrapper(embeddings))
         documents = []
@@ -100,7 +100,7 @@ class ChromaKnowledgeBase(KnowledgeBase):
             metadatas = result['metadatas']
             distances = result['distances']
             for i in range(len(docs[0])):
-                ret.append(Knowlege(
+                ret.append(Knowledge(
                     id=ids[0][i],
                     content=docs[0][i],
                     metadata=metadatas[0][i],

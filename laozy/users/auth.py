@@ -24,6 +24,8 @@ from ..utils import uuid, sha256
 #    pass
 
 secrect_key = settings.get('SECRECT_KEY')
+if not secrect_key:
+    secrect_key = uuid()
 
 
 @api.entry.get("/captcha", tags=['User'])

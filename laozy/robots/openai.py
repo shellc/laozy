@@ -17,10 +17,13 @@ from .base_robot import ChatRobot
 openai_api_key = settings.get('OPENAI_API_KEY')
 openai_api_base = settings.get('OPENAI_API_BASE')
 
-llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0,
-                 openai_api_key=openai_api_key, streaming=True)
-
-openai.api_base = openai_api_base
+llm = None
+if openai_api_key:
+    llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0,
+                    openai_api_key=openai_api_key, streaming=True)
+    
+if openai_api_base:
+    openai.api_base = openai_api_base
 
 
 class OpenAIRobot(ChatRobot):
@@ -46,6 +49,9 @@ class OpenAIRobot(ChatRobot):
     async def generate(self, msg: Message):
         history_limit = 4 if self.history_limit < 0 or self.history_limit > 20 else self.history_limit
         memory = await self.load_memory(current_msg=msg, limit=history_limit)
+
+        if not llm:
+            raise Exception('Can not connect to OpenAI LLM.')
 
         chain = LLMChain(llm=llm, memory=memory,
                          prompt=self.prompt, verbose=False)

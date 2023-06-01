@@ -6,9 +6,12 @@ from pydantic import BaseModel
 
 from .entry import entry
 from ..db import knowledges, KnowledgePdModel
-from ..knowledge import Knowlege, knowledge_base, embeddings
+from ..knowledge import Knowledge, knowledge_base, embeddings
 from ..utils import uuid
 
+def check_settings():
+    if not knowledge_base or not embeddings:
+        raise HTTPException(status_code=503, detail='No vector search engine or embedding functions.')
 
 @entry.get('/knowledges', tags=['Knowledge Base'])
 @requires(['authenticated'])
@@ -24,13 +27,14 @@ class KnowledgeModel(BaseModel):
 @entry.post('/knowledges', status_code=201, tags=['Knowledge Base'])
 @requires(['authenticated'])
 async def create_knowledge_base(k: KnowledgeModel, request: Request) -> KnowledgePdModel:
+    check_settings()
     r = {
         'id': uuid(),
         'name': k.name,
         'owner': request.user.userid,
         'created_time': int(time.time())
     }
-    await knowledge_base.create(r['id'])
+    await knowledge_base.create(r['id'], embeddings=embeddings)
     await knowledges.create(**r)
     return KnowledgePdModel(**r)
 
@@ -38,6 +42,7 @@ async def create_knowledge_base(k: KnowledgeModel, request: Request) -> Knowledg
 @entry.put('/knowledges/{id}', status_code=201, tags=['Knowledge Base'])
 @requires(['authenticated'])
 async def modify_knowledge_base(id: str, k: KnowledgeModel, request: Request) -> KnowledgePdModel:
+    check_settings()
     r = await knowledges.get(id)
     if not r:
         raise HTTPException(404, "Not found.")
@@ -53,6 +58,7 @@ async def modify_knowledge_base(id: str, k: KnowledgeModel, request: Request) ->
 @entry.delete('/knowledges/{id}', status_code=204, tags=['Knowledge Base'])
 @requires(['authenticated'])
 async def remove_knowledge_base(id: str, request: Request):
+    check_settings()
     await knowledge_base.drop(id)
     await knowledges.delete(id)
 
@@ -64,12 +70,14 @@ class EmbedingRequest(BaseModel):
 @entry.post('/knowledges/embeddings', status_code=200, tags=['Knowledge Base'])
 @requires(['authenticated'])
 async def embedding(er: EmbedingRequest, request: Request) -> List[float]:
+    check_settings()
     return embeddings.embed(er.content)
 
 
 @entry.post('/knowledges/{knowledge_id}', status_code=201, tags=['Knowledge Base'])
 @requires(['authenticated'])
-async def save_knowledge(knowledge_id: str, knowledges: List[Knowlege], request: Request):
+async def save_knowledge(knowledge_id: str, knowledges: List[Knowledge], request: Request):
+    check_settings()
     await knowledge_base.save(collection=knowledge_id, knowledges=knowledges, embeddings=embeddings)
 
 
@@ -79,7 +87,8 @@ async def retrieve_knowledges(knowledge_id: str,
                               request: Request,
                               content: Optional[str] = None,
                               tag: Optional[str] = None
-                              ) -> List[Knowlege]:
+                              ) -> List[Knowledge]:
+    check_settings()
 
     metadata = {}
     if tag:
@@ -90,4 +99,5 @@ async def retrieve_knowledges(knowledge_id: str,
 @entry.delete('/knowledges/{knowledge_id}/{item_id}', status_code=204, tags=['Knowledge Base'])
 @requires(['authenticated'])
 async def delete_knowlege(knowledge_id: str, item_id: str, request: Request):
+    check_settings()
     await knowledge_base.delete(collection=knowledge_id, id=item_id)

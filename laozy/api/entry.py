@@ -30,6 +30,9 @@ tags_metadata = [
         "name": "Knowledge Base",
     },
     {
+        "name": "Message",
+    },
+    {
         "name": "WeChat",
         "description": "Oprations with WeChat"
     },

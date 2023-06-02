@@ -1,18 +1,18 @@
 import uuid
 import time
 from pydantic import BaseModel, validator
-from typing import Union, AsyncIterator
+from typing import Optional, AsyncIterator
 import asyncio
 
 
 class Message(BaseModel):
     id: str = uuid.uuid1().hex
-    connector: Union[str, None] = None
+    connector: Optional[str] = None
     connector_id: str
     connector_userid: str
-    connector_msgid: Union[str, None] = None
-    channel_id: Union[str, None] = None
-    robot_id: Union[str, None] = None
+    connector_msgid: Optional[str] = None
+    channel_id: Optional[str] = None
+    robot_id: Optional[str] = None
     direction: int = 0
     send_time: int = int(time.time())
     msgtype: str = 'text'
@@ -24,6 +24,7 @@ class Message(BaseModel):
 
     event: asyncio.Event = None
     streaming_iter: AsyncIterator = None
+    extra: Optional[str] = None
     
     class Config:
         arbitrary_types_allowed = True

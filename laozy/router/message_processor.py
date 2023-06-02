@@ -6,7 +6,7 @@ from .. import connectors
 from ..message import Message
 from .. import db
 from .. import robots
-
+from . import message_hook
 
 def streaming_notify(msg, error_msg=None):
     if error_msg:
@@ -38,10 +38,12 @@ async def process(msg: Message):
 
     # Robot
     robot = None
+    robot_model = None
     if channel.robot_id:
         msg.robot_id = channel.robot_id
         try:
-            robot = await robots.get_robot(msg.robot_id)
+            robot_model = await db.robots.get(msg.robot_id)
+            robot = await robots.get_robot(robot_model)
         except Exception as e:
             error_msg = "Create Robot instance failed: %s" % (str)
             log.error(error_msg, exc_info=e)
@@ -76,12 +78,18 @@ async def process(msg: Message):
 
     # Save and send reply message
     if reply:
+        # call webhook url to change message
+        if robot_model and robot_model.message_hook:
+            await message_hook.post_message(robot_model.message_hook, reply)
+
         # Save reply to database
         await db.messages.save(**reply.dict())
 
         # Send to connector
         if not msg.streaming:
             await connectors.manager.send(reply)
+        else:
+            msg.extra = reply.extra
 
     # Make sure that the streaming event is properly notified
     streaming_notify(msg, error_msg)

@@ -41,6 +41,7 @@ messages = MessageModel(
     sqlalchemy.Column('created_time', sqlalchemy.Integer, index=True),
     sqlalchemy.Column('msgtype', sqlalchemy.String(20)),
     sqlalchemy.Column('content', sqlalchemy.String(4096)),
+    sqlalchemy.Column('extra', sqlalchemy.String(4096)),
     sqlalchemy.Column('status', sqlalchemy.Integer, index=True),
 )
 

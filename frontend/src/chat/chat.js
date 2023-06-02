@@ -74,9 +74,15 @@ export const Chat = (props) => {
                 let t_history = [];
                 for (let i = messages.length; i > 0; i--) {
                     let msg = messages[i - 1];
+
+                    let content = msg.content;
+                    if (msg.extra) {
+                        content += '\n\n' + msg.extra;
+                    }
+
                     t_history.push({
                         role: msg.direction === 0 ? 'human' : 'ai',
-                        message: msg.content
+                        message: content
                     });
                 }
                 setHistory(t_history);
@@ -109,18 +115,26 @@ export const Chat = (props) => {
                 }
             },
             onmessage(msg) {
-                let j = JSON.parse(msg.data);
                 if (msg.event === 'error') {
+                    let j = JSON.parse(msg.data);
                     let e = j['e'];
                     setError(e);
                     setGenerating(false);
-                } else {
+                } else if (msg.event === 'message') {
+                    let j = JSON.parse(msg.data);
                     let c = j['c'];
                     if (c) {
                         reply = reply + c;
                         setCurrentReply(reply + "▁");
                         setHistoryScroll();
                     }
+                } else if (msg.event === 'extra') {
+                    let j = JSON.parse(msg.data);
+                    reply = reply + "\n\n" + j;
+                    setCurrentReply(reply)
+                    setHistoryScroll();
+                } else {
+                    console.log("Unkow event: " + msg.data);
                 }
             },
             onerror(err) {

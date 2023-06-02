@@ -67,6 +67,7 @@ async def send_message(wmsg: WebMessage, request: Request, sse: bool = False):
 
     await web_connector.receive(msg)
     await msg.event.wait()
+    msg.event.clear()
 
     log.info("Generate for message: %s" % msg.id)
 
@@ -82,6 +83,11 @@ async def send_message(wmsg: WebMessage, request: Request, sse: bool = False):
                     yield "event: message\ndata: %s\n\n" % json.dumps(e)
                 else:
                     yield c
+            
+            await msg.event.wait() # waitting for end
+            if msg.extra:
+                yield "event: extra\ndata: %s\n\n" % json.dumps(msg.extra)
+
         elif msg.msgtype == 'error':  # error occurred
             yield "event: error\ndata: %s\n\n" % json.dumps({"e": msg.content})
 

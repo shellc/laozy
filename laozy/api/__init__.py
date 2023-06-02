@@ -4,3 +4,4 @@ from . import prompts
 from . import robots
 from . import channels
 from . import knowledges
+from . import messages

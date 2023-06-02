@@ -3,15 +3,14 @@ import logging
 
 
 from .. import db
+from ..db import RobotPdModel
 from .openai import OpenAIRobot
 
 
 log = logging.getLogger()
 
-
-async def get_robot(id: str):
+async def get_robot(r: RobotPdModel):
     robot = None
-    r = await db.robots.get(id)
     prompt_template = {}
     variables = []
     values = {}

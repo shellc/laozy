@@ -10,7 +10,7 @@ fastapi
 SQLAlchemy
 sqlalchemy[asyncio]
 databases
-databases[aiosqlite]
+aiosqlite
 alembic
 langchain
 openai

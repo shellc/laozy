@@ -3,7 +3,7 @@ import asyncio
 import json
 from typing import Optional, List
 from pydantic import BaseModel
-from fastapi import Request, HTTPException, status
+from fastapi import Request, HTTPException, status, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response, StreamingResponse
 from starlette.authentication import requires
 
@@ -94,6 +94,49 @@ async def send_message(wmsg: WebMessage, request: Request, sse: bool = False):
     content_type = 'text/event-stream' if sse else 'text/plain'
     return StreamingResponse(aiter(), headers={'Content-Type': content_type})
 
+@entry.websocket('/connectors/messages/ws')
+@requires('authenticated')
+async def send_message_websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    print(websocket.user, websocket.auth)
+
+    try:
+        while True:
+            wmsg = await websocket.receive_json()
+            wmsg = WebMessage(**wmsg)
+
+            connector_userid = wmsg.connector_userid
+            if not connector_userid:
+                connector_userid = websocket.user.userid
+
+            msg = Message(connector_id=wmsg.connector_id,
+                        content=wmsg.content, connector_userid=connector_userid)
+
+            log.info("Received message: %s" % msg.id)
+            msg.streaming = True
+            msg.event = asyncio.Event()
+
+            await web_connector.receive(msg)
+            await msg.event.wait()
+            msg.event.clear()
+
+            log.info("Generate for message: %s" % msg.id)
+
+            if msg.streaming_iter:
+                async for c in msg.streaming_iter:
+                    e = {
+                        "event": "message",
+                        "c": c
+                    }
+                    await websocket.send_json(e)
+
+                await msg.event.wait() # waitting for end
+                if msg.extra:
+                    await websocket.send_json({"event": "extra", "c": msg.extra})
+            elif msg.msgtype == 'error':  # error occurred
+                await websocket.send_json({"event": "error", "c": msg.content})
+    except WebSocketDisconnect:
+        pass
 
 # WeChat Customer Service APIs
 
